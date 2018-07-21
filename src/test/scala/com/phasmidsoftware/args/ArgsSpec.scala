@@ -2,6 +2,8 @@
  * Copyright (c) 2018. Phasmid Software
  */
 
+package com.phasmidsoftware.args
+
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.{Failure, Success}
@@ -58,7 +60,7 @@ class ArgsSpec extends FlatSpec with Matchers {
 
   it should "process " + sX + ": append" in {
     val sb = new StringBuilder
-    val processor = Map[String, Option[String] => Unit](sX ->[Option[String] => Unit] { x => sb.append(x) })
+    val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit]({ x => sb.append(x) }))
     val target = Arg(sX, s1)
     val result = target.process(processor)
     result should matchPattern { case Success(_) => }
@@ -67,7 +69,7 @@ class ArgsSpec extends FlatSpec with Matchers {
 
   it should "not process " + sY + ": append" in {
     val sb = new StringBuilder
-    val processor = Map[String, Option[String] => Unit](sX ->[Option[String] => Unit] { x => sb.append(x) })
+    val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { x => sb.append(x) })
     val target = Arg(sY, s1)
     val result = target.process(processor)
     result should matchPattern { case Failure(_) => }
@@ -116,7 +118,7 @@ class ArgsSpec extends FlatSpec with Matchers {
   it should "process " + sX + ": append" in {
     val sA = "a"
     val sb = new StringBuilder
-    val processor = Map[String, Option[String] => Unit](sX ->[Option[String] => Unit] { case Some(x) => sb.append(x); case _ => })
+    val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { case Some(x) => sb.append(x); case _ => })
     val target = Args.create(Arg(sX, s1), Arg(sX, sA))
     val result = target.process(processor)
     result should matchPattern { case Success(_) => }

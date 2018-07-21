@@ -2,8 +2,11 @@
  * Copyright (c) 2018. Phasmid Software
  */
 
+package com.phasmidsoftware.args
+
 import scala.util._
 import scala.util.parsing.combinator.RegexParsers
+import com.phasmidsoftware.util.MonadOps._
 
 case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]] {
   def isOptional(s: Synopsis): Boolean = s.find(name) match {
@@ -122,7 +125,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Traversable[Arg[X]] {
   def isDefined(w: String): Boolean = getArg(w).isDefined
 
   def process(fm: Map[String, Option[X] => Unit]): Try[Seq[X]] =
-    MonadOps.sequence(for (xa <- xas) yield for (x <- xa.process(fm)) yield x) match {
+    sequence(for (xa <- xas) yield for (x <- xa.process(fm)) yield x) match {
       case Success(xos) => Success(xos.flatten)
       case Failure(x) => Failure(x)
     }
@@ -147,7 +150,7 @@ object Args {
     }
 
     val tys = for (a <- args) yield p.parseToken(a)
-    val ts = MonadOps.sequence(tys) match {
+    val ts = sequence(tys) match {
       case Success(ts_) => ts_
       case Failure(x) => System.err.println(x.getLocalizedMessage); Seq[p.Token]()
     }

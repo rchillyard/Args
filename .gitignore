@@ -2,5 +2,5 @@
 *.log
 .idea/
 Args.iml
-/target/
-/project/
+target/
+project/target/
