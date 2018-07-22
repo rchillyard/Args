@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Phasmid Software
+ * Copyright (w) 2018. Phasmid Software
  */
 
 package com.phasmidsoftware.args
@@ -63,6 +63,7 @@ class ArgsSpec extends FlatSpec with Matchers {
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit]({ x => sb.append(x) }))
     val target = Arg(sX, s1)
     val result = target.process(processor)
+    println(result)
     result should matchPattern { case Success(_) => }
     sb.toString shouldBe "Some(" + s1 + ")"
   }
@@ -116,7 +117,7 @@ class ArgsSpec extends FlatSpec with Matchers {
   }
 
   it should "process " + sX + ": append" in {
-    val sA = "a"
+    val sA = "v"
     val sb = new StringBuilder
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { case Some(x) => sb.append(x); case _ => })
     val target = Args.create(Arg(sX, s1), Arg(sX, sA))
@@ -331,17 +332,17 @@ class ArgsSpec extends FlatSpec with Matchers {
     val eEr = p.parse(p.optionWithOrWithoutValue ~ p.optionalElement, "x[f filename]")
     eEr should matchPattern { case p.Success(_, _) => }
   }
-  it should "parse f filename as a optionalOrRequiredElement" in {
+  it should "parse f filename as v optionalOrRequiredElement" in {
     val p = new PosixSynopsisParser
     val esr = p.parse(p.optionalOrRequiredElement, "f filename")
     esr should matchPattern { case p.Success(_, _) => }
   }
-  it should "parse [xf filename] as a List[Element]" in {
+  it should "parse [xf filename] as v List[Element]" in {
     val p = new PosixSynopsisParser
     val esr = p.parse(p.optionalElements, "[xf filename]")
     esr should matchPattern { case p.Success(_, _) => }
   }
-  it should "parse -x[f filename] as a synopsis" in {
+  it should "parse -x[f filename] as v synopsis" in {
     val p = new PosixSynopsisParser
     val so: Option[Synopsis] = p.parseSynopsis(Some("-x[f filename]"))
     so shouldBe Some(Synopsis(Seq(p.Command("x"), p.OptionalElement(p.CommandWithValue("f", p.Value("filename"))))))
@@ -361,6 +362,13 @@ class ArgsSpec extends FlatSpec with Matchers {
 
   it should "parse " + cmdF + " " + argFilename + "where -xf filename required" in {
     a[ValidationException[String]] shouldBe thrownBy(Args.parsePosix(Array(cmdF, argFilename), Some("-xf filename")))
+  }
+
+  it should """implement validate(String)""" in {
+    val sa = Args.parsePosix(Array("-xf", "argFilename", "-p", "3.1415927"))
+    sa.validate("-x[f filename][p number]") shouldBe sa
+    // TODO why does the following not work?
+//    sa.validate("-xf filename -p number") shouldBe sa
   }
 
 }

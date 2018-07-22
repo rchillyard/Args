@@ -8,29 +8,71 @@ import scala.util._
 import scala.util.parsing.combinator.RegexParsers
 import com.phasmidsoftware.util.MonadOps._
 
+/**
+  * Case class to represent an "option" in a command line.
+  * Such an option has an (optional) name which is a String;
+  * and an (optional) value, which is of type X.
+  * @param name the optional name.
+  * @param value the optional value.
+  * @tparam X the underlying type of the value.
+  */
 case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]] {
+
+  /**
+    * Method to determine if this Arg is optional according to the synopsis given.
+    * @param s the synopsis.
+    * @return true if this Arg is optional.
+    * @throws InvalidOptionException if this Arg cannot be found in the synopsis.
+    */
   def isOptional(s: Synopsis): Boolean = s.find(name) match {
     case Some(e) => e.isOptional
     case _ => throw InvalidOptionException(this)
   }
 
+  /**
+    * Method to get this Arg, if and only if its name matches the given String (w)
+    * @param w the string to match.
+    * @return either Some(this) or else None.
+    */
   def byName(w: String): Option[Arg[X]] = name match {
     case Some(`w`) => Some(this)
     case _ => None
   }
 
+  /**
+    * Method to map this Arg into an Arg of underlying type Y
+    * @param f a function to convert an X into a Y.
+    * @tparam Y the underlying type of the result.
+    * @return an Arg[Y]
+    */
   def map[Y](f: X => Y): Arg[Y] = Arg(name, value map f)
 
+  /**
+    * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether its name exists.
+    * @return Some[(String, Option[X]) if name is not None otherwise None.
+    */
   def asMaybeTuple: Option[(String, Option[X])] = name match {
     case Some(w) => Some(w, value)
     case _ => None
   }
 
+  /**
+    * Method to get the value of this Arg as a Y.
+    * @tparam Y the type of the result.
+    * @return the result of deriving a Y value from the actual value of this Arg.
+    * @throws NoValueException if the value of this Arg is None.
+    */
   def toY[Y: Derivable]: Y = value match {
     case Some(x) => implicitly[Derivable[Y]].deriveFrom(x)
     case _ => throw NoValueException(name)
   }
 
+  /**
+    * Method to process this Arg, given a map of options and their corresponding functions.
+    * @param fm a Map of String->function where function is of type Option[X]=>Unit
+    * @return a Success[None] if there was a function defined for this Arg in the map fm AND if the function invocation was successful;
+    *         otherwise a Failure[X]
+    */
   def process(fm: Map[String, Option[X] => Unit]): Try[Option[X]] = {
     def processFuncMaybe(fo: Option[Option[X] => Unit]): Try[Option[X]] = fo match {
       case Some(f) => Try(f(value)).map(_ => None)
@@ -45,6 +87,10 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     }
   }
 
+  /**
+    * Method to form a String from this Arg
+    * @return "Arg: command name/anonymous with value: value/none"
+    */
   override def toString: String = s"Arg: command ${name.getOrElse("anonymous")} with value: ${value.getOrElse("none")}"
 
   def compare(that: Arg[X]): Int = name match {
@@ -57,20 +103,50 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 }
 
 object Arg {
-  def apply(c: String): Arg[String] = Arg(Some(c), None)
+  /**
+    * Method to create an Arg with name given as w and no value.
+    * @param w the name of the arg
+    * @return a valueless Arg[String] with name w.
+    */
+  def apply(w: String): Arg[String] = Arg(Some(w), None)
 
-  def apply(c: String, a: String): Arg[String] = Arg(Some(c), Some(a))
+  /**
+    * Method to create an Arg with name given as w and value v.
+    * @param w the name of the arg.
+    * @param v the value of the arg.
+    * @return v valueless Arg[String] with name w and value v.
+    */
+  def apply(w: String, v: String): Arg[String] = Arg(Some(w), Some(v))
 }
 
-case class Args[X](xas: Seq[Arg[X]]) extends Traversable[Arg[X]] {
+case class Args[X](xas: Seq[Arg[X]]) extends Traversable[Arg[X]] with Iterable[Arg[X]] {
 
+  /**
+    * Method to validate this Args according to the POSIX-style synopsis w, expressed as a String.
+    * @param w the synopsis
+    * @return this Args, assuming that all is OK
+    */
   def validate(w: String): Args[X] = validate(new PosixSynopsisParser().parseSynopsis(Some(w)))
 
+  /**
+    * Method to validate this Args according to the (optional) synopsis given as so.
+    * @param so the optional Synopsis.
+    * @return this, provided that the so is not None and that the result of calling validate(Synopsis) is true.
+    * @throws ValidationException if validation returns false.
+    * @throws InvalidOptionException if any Arg cannot be found in the synopsis.
+    */
   def validate(so: Option[Synopsis]): Args[X] = so match {
     case Some(s) => if (validate(s)) this else throw ValidationException(this, s)
     case _ => this
   }
 
+  /**
+    * Method to validate this Args according to the given Synopsis.
+    *
+    * @param s the Synopsis.
+    * @return true if all the Arg elements of this are compatible with the synopsis.
+    * @throws InvalidOptionException if this Arg cannot be found in the synopsis.
+    */
   def validate(s: Synopsis): Boolean = {
     val (m, _) = s.mandatoryAndOptionalElements
     // NOTE: the following will throw an exception if any Arg is invalid
@@ -83,6 +159,14 @@ case class Args[X](xas: Seq[Arg[X]]) extends Traversable[Arg[X]] {
       false
   }
 
+  /**
+    * Validate this Args with respect to just one Element of a Synopsis.
+    *
+    * TODO: figure out what this is or was supposed to do -- it doesn't get called at present.
+    *
+    * @param e the element
+    * @return false
+    */
   def validate(e: Element): Boolean = false
 
   /**
@@ -122,8 +206,18 @@ case class Args[X](xas: Seq[Arg[X]]) extends Traversable[Arg[X]] {
     */
   def getArgValue[Y: Derivable](w: String): Option[Y] = getArg(w) map (xa => xa.toY)
 
+  /**
+    * Method to determine if the argument identified by w is defined.
+    * @param w the name of an argument (command).
+    * @return true if the argument is found by getArg
+    */
   def isDefined(w: String): Boolean = getArg(w).isDefined
 
+  /**
+    * Process this Args according to the map fm of String->function.
+    * @param fm a Map of String->function where function is of type Option[X]=>Unit
+    * @return a Try[Seq[X] resulting from iteration through each Arg and processing it.
+    */
   def process(fm: Map[String, Option[X] => Unit]): Try[Seq[X]] =
     sequence(for (xa <- xas) yield for (x <- xa.process(fm)) yield x) match {
       case Success(xos) => Success(xos.flatten)
@@ -132,13 +226,18 @@ case class Args[X](xas: Seq[Arg[X]]) extends Traversable[Arg[X]] {
 
   def iterator: Iterator[Arg[X]] = xas.iterator
 
-  def foreach[U](f: Arg[X] => U): Unit = xas foreach f
+//  def foreach[U](f: Arg[X] => U): Unit = xas foreach f
 
 }
 
 object Args {
-  def create(args: Arg[String]*): Args[String] = apply(args)
-
+  /**
+    * Method to parse a set of command line arguments that don't necessarily conform to the POSIX standard,
+    * and which cannot be validated.
+    *
+    * @param args the command line arguments.
+    * @return the arguments parsed as an Args[String].
+    */
   def parse(args: Array[String]): Args[String] = {
     val p = new SimpleArgParser
 
@@ -157,7 +256,23 @@ object Args {
     Args(inner(Seq(), ts))
   }
 
+  /**
+    * Method to parse a set of command line arguments that conform to the POSIX standard.
+    * @param args the command line arguments.
+    * @param synopsis the (optional) syntax template which will be used, if not None, to validate the options.
+    * @return the arguments parsed as an Args[String].
+    */
   def parsePosix(args: Array[String], synopsis: Option[String] = None): Args[String] = doParse((new PosixArgParser).parseCommandLine(args), synopsis)
+
+  /**
+    * Method to create an Args object from a variable number of Arg parameters.
+    *
+    * NOTE: this is normally used only for testing.
+    *
+    * @param args the command line arguments.
+    * @return the arguments parsed as an Args[String].
+    */
+  def create(args: Arg[String]*): Args[String] = apply(args)
 
   private def doParse(ps: Seq[PosixArg], synopsis: Option[String] = None): Args[String] = {
     def processPosixArg(p: PosixArg): Seq[PosixArg] = p match {
@@ -195,6 +310,9 @@ trait Derivable[T] {
   def deriveFrom[X](x: X): T
 }
 
+/**
+  * Parser of non-POSIX command lines
+  */
 class SimpleArgParser extends RegexParsers {
   def parseToken(s: String): Try[Token] = parseAll(token, s) match {
     case Success(t, _) => scala.util.Success(t)
@@ -219,6 +337,9 @@ class SimpleArgParser extends RegexParsers {
   private val argR = """\w+""".r
 }
 
+/**
+  * a Posix Arg
+  */
 trait PosixArg {
   def value: String
 }
@@ -245,6 +366,9 @@ case class PosixOptionValue(value: String) extends PosixArg
   */
 case class PosixOperand(value: String) extends PosixArg
 
+/**
+  * Parser of POSIX-style command lines.
+  */
 class PosixArgParser extends RegexParsers {
 
   def parseCommandLine(ws: Seq[String]): Seq[PosixArg] = parseAll(posixCommandLine, ws.mkString("", terminator, terminator)) match {
@@ -253,7 +377,7 @@ class PosixArgParser extends RegexParsers {
   }
 
   /**
-    * Note that it is impossible to tell whether the first arg after an option set is an option value or the first operand.
+    * NOTE that it is impossible to tell whether the first arg after an option set is an option value or the first operand.
     * Only validating it with a command line synopsis can do that for sure.
     *
     * @return
@@ -285,7 +409,7 @@ trait Element extends Ordered[Element] {
 }
 
 /**
-  * Don't think we need this
+  * NOTE: Don't think we need this
   */
 trait Optional
 
