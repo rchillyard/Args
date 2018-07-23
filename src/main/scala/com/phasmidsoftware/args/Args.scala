@@ -4,9 +4,10 @@
 
 package com.phasmidsoftware.args
 
+import com.phasmidsoftware.util.MonadOps._
+
 import scala.util._
 import scala.util.parsing.combinator.RegexParsers
-import com.phasmidsoftware.util.MonadOps._
 
 /**
   * Case class to represent an "option" in a command line.
@@ -119,7 +120,7 @@ object Arg {
   def apply(w: String, v: String): Arg[String] = Arg(Some(w), Some(v))
 }
 
-case class Args[X](xas: Seq[Arg[X]]) extends Traversable[Arg[X]] with Iterable[Arg[X]] {
+case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
 
   /**
     * Method to validate this Args according to the POSIX-style synopsis w, expressed as a String.
