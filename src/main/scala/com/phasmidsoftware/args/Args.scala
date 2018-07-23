@@ -49,11 +49,20 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   def map[Y](f: X => Y): Arg[Y] = Arg(name, value map f)
 
   /**
-    * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether its name exists.
+    * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether it's an "option".
     * @return Some[(String, Option[X]) if name is not None otherwise None.
     */
   def asMaybeTuple: Option[(String, Option[X])] = name match {
     case Some(w) => Some(w, value)
+    case _ => None
+  }
+
+  /**
+    * Method to return this Arg as an optional  X value, according to whether it's an "positional argument".
+    * @return Some[X] if name is None otherwise None.
+    */
+  def asPositionalArg: Option[X] = name match {
+    case None => value
     case _ => None
   }
 
@@ -184,7 +193,13 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     *
     * @return the options as a map
     */
-  def extract: Map[String, Option[X]] = (for (xa <- xas) yield xa.asMaybeTuple).flatten.toMap
+  def options: Map[String, Option[X]] = (for (xa <- xas) yield xa.asMaybeTuple).flatten.toMap
+
+  /**
+    * Get the positional arguments (i.e. args without names) as a sequence of X values.
+    * @return a sequence of X values.
+    */
+  def positional: Seq[X] = (for (xa <- xas) yield xa.asPositionalArg).flatten
 
   /**
     * Method to get an Arg whose name matches the given string.

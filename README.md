@@ -45,7 +45,7 @@ Optional arguments ("options") which come first have a name but may or may not h
 
 The underlying type *X* is the type of the (optional) value.
 When an *Arg* results directly from parsing the command line, then *X* is always String.
-But a map method is defined which allows an *Arg[X]* to be transformed into an *Arg[Y]*.
+But a *map* method is defined which allows an *Arg[X]* to be transformed into an *Arg[Y]*.
     
 ## Parsing and Processing
 An example of parsing with validation is the following:
@@ -56,7 +56,7 @@ An example of parsing with validation is the following:
 This will create an *Args[String]* with two *Arg* elements: one corresponding to *f:filename* and one corresponding to *positionalArg*.
 Note that, currently at least, there is no way to validate that the required number of positional arguments is present.
 
-There is another form of parsePosix which takes only the args parameter.
+There is another form of *parsePosix* which takes only the args parameter.
 In this case, there will be no validation.
 
     val args = Array("-f", "argFilename", "positionalArg")
@@ -67,13 +67,18 @@ There is another method for parsing which doesn't require POSIX-style but cannot
     val args = Array("-f", "argFilename", "positionalArg")
     val as: Args[String] = Args.parse(args)
 
-Once parsed and validated, an Args object can be processed by invoking the process method with a
+Once parsed and validated, an *Args* object can be processed by invoking the *process* method with a
 map of "name"->function pairs.
-The signature of the process method is:
+The signature of the *process* method is:
 
     def process(fm: Map[String, Option[X] => Unit]): Try[Seq[X]]
     
 The args are processed as *side-effects* (!!) but any positional args are returned in the result.
 If any exceptions are thrown by the functions, the result will be a *Failure* and not a *Success*.
+
+An alternative to invoking *process* is to split the *Args* up into options and positional args using the *options* and *positional* methods:
+
+    def options: Map[String, Option[X]]
+    def positional: Seq[X]
 
 Please see the *ArgsSpec* class for more examples of invoking the various methods available.

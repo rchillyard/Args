@@ -111,9 +111,14 @@ class ArgsSpec extends FlatSpec with Matchers {
     a [AmbiguousNameException] shouldBe thrownBy(target.getArg(sX))
   }
 
-  it should "implement extract" in {
-    val target = Args.create(Arg(sX, s1))
-    target.extract shouldBe Map(sX -> Some(s1))
+  it should "implement options" in {
+    val target = Args.parse(Array("-"+sX, s1))
+    target.options shouldBe Map(sX -> Some(s1))
+  }
+
+  it should "implement positional" in {
+    val target = Args.parse(Array(s1))
+    target.positional shouldBe Seq(s1)
   }
 
   it should "process " + sX + ": append" in {
