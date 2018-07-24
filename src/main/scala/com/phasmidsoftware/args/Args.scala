@@ -5,6 +5,7 @@
 package com.phasmidsoftware.args
 
 import com.phasmidsoftware.util.MonadOps._
+import com.phasmidsoftware.util.{Kleenean, Maybe}
 
 import scala.util._
 import scala.util.parsing.combinator.RegexParsers
@@ -20,14 +21,28 @@ import scala.util.parsing.combinator.RegexParsers
 case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]] {
 
   /**
-    * Method to determine if this Arg is optional according to the synopsis given.
-    * @param s the synopsis.
-    * @return true if this Arg is optional.
-    * @throws InvalidOptionException if this Arg cannot be found in the synopsis.
+    * Method to determine if this Arg is an option (also known as a "flag"), as opposed to an operand.
+    *
+    * @return true if name is not None
     */
-  def isOptional(s: Synopsis): Boolean = s.find(name) match {
-    case Some(e) => e.isOptional
-    case _ => throw InvalidOptionException(this)
+  def isOption: Boolean = name.isDefined
+
+  /**
+    * Method to determine if this Arg has a value, thus either an option with value, or an operand.
+    *
+    * @return true if value is not None
+    */
+  def hasValue: Boolean = value.isDefined
+
+  /**
+    * Method to determine if this Arg is optional according to the synopsis provided.
+    *
+    * @param s the synopsis.
+    * @return Kleenean(true if this Arg is optional.
+    */
+  def isOptional(s: Synopsis): Maybe = s.find(name) match {
+    case Some(e) => Kleenean(e.isOptional)
+    case _ => Kleenean()
   }
 
   /**
@@ -50,18 +65,20 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 
   /**
     * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether it's an "option".
+    *
     * @return Some[(String, Option[X]) if name is not None otherwise None.
     */
-  def asMaybeTuple: Option[(String, Option[X])] = name match {
+  def asOption: Option[(String, Option[X])] = name match {
     case Some(w) => Some(w, value)
     case _ => None
   }
 
   /**
-    * Method to return this Arg as an optional  X value, according to whether it's an "positional argument".
+    * Method to return this Arg as an optional X value, according to whether it's an "operand".
+    *
     * @return Some[X] if name is None otherwise None.
     */
-  def asPositionalArg: Option[X] = name match {
+  def operand: Option[X] = name match {
     case None => value
     case _ => None
   }
@@ -160,7 +177,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
   def validate(s: Synopsis): Boolean = {
     val (m, _) = s.mandatoryAndOptionalElements
     // NOTE: the following will throw an exception if any Arg is invalid
-    val (_, mandatory) = xas.filter(_.name.isDefined).partition(_.isOptional(s))
+    val (_, mandatory) = xas.filter(_.isOption).partition(_.isOptional(s).toBoolean(false))
     if (m.size == mandatory.size) {
       val bs = for (z <- m.sorted zip mandatory.sorted) yield (z._1.value compare z._2.name.get) == 0
       bs.forall(_ == true)
@@ -193,13 +210,14 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     *
     * @return the options as a map
     */
-  def options: Map[String, Option[X]] = (for (xa <- xas) yield xa.asMaybeTuple).flatten.toMap
+  def options: Map[String, Option[X]] = (for (xa <- xas) yield xa.asOption).flatten.toMap
 
   /**
-    * Get the positional arguments (i.e. args without names) as a sequence of X values.
+    * Get the operands or positional arguments (i.e. args without names) as a sequence of X values.
+    *
     * @return a sequence of X values.
     */
-  def positional: Seq[X] = (for (xa <- xas) yield xa.asPositionalArg).flatten
+  def operands: Seq[X] = (for (xa <- xas) yield xa.operand).flatten
 
   /**
     * Method to get an Arg whose name matches the given string.
@@ -241,8 +259,6 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     }
 
   def iterator: Iterator[Arg[X]] = xas.iterator
-
-//  def foreach[U](f: Arg[X] => U): Unit = xas foreach f
 
 }
 
@@ -290,22 +306,50 @@ object Args {
     */
   def create(args: Arg[String]*): Args[String] = apply(args)
 
-  private def doParse(ps: Seq[PosixArg], synopsis: Option[String] = None): Args[String] = {
+  private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Args[String] = {
+    val so = (new PosixSynopsisParser).parseSynopsis(wo)
+
     def processPosixArg(p: PosixArg): Seq[PosixArg] = p match {
-      case PosixOptions(w) => for (c <- w) yield PosixOptions(c.toString)
+      case PosixOptionString(w) =>
+        so match {
+          case Some(s) =>
+            val cEm: Map[Char, Element] = prune(for (c <- w) yield c -> s.find(Some(c.toString)))
+
+            def inner2(ws: Seq[PosixArg], cs: List[Char]): Seq[PosixArg] = cs match {
+              case Nil => ws
+              case c :: tail =>
+                cEm.get(c) match {
+                  case Some(e) =>
+                    def processElement(e: Element): Seq[PosixArg] = e match {
+                      case OptionalElement(x) => processElement(x)
+                      case CommandWithValue(_, OptionalElement(_)) => ws ++ Seq(PosixOptionString(c.toString), PosixOptionValue(tail.mkString("")))
+                      case _ => inner2(ws :+ PosixOptionString(c.toString), tail)
+                    }
+
+                    processElement(e)
+                  case _ => throw NoOptionInSynopsisException(c.toString)
+                }
+            }
+
+            inner2(Seq(), w.toList)
+          case _ =>
+            for (c <- w) yield PosixOptionString(c.toString)
+        }
       case x => Seq(x)
     }
 
     def inner(r: Seq[Arg[String]], w: Seq[PosixArg]): Seq[Arg[String]] = w match {
       case Nil => r
-      case PosixOptions(o) :: PosixOptionValue(v) :: t => inner(r :+ Arg(o, v), t)
-      case PosixOptions(o) :: t => inner(r :+ Arg(o), t)
+      case PosixOptionString(o) :: PosixOptionValue(v) :: t => inner(r :+ Arg(o, v), t)
+      case PosixOptionString(o) :: t => inner(r :+ Arg(o), t)
       case PosixOperand(o) :: t => inner(r :+ Arg(None, Some(o)), t)
+      // TODO figure out how to deal with this properly
+      case PosixOptionValue(o) :: t => inner(r :+ Arg(None, Some(o)), t)
+      case _ => throw ParseException(s"inner: failed to match $w")
     }
 
-    val eso = (new PosixSynopsisParser).parseSynopsis(synopsis)
-    val pss = for (p <- ps) yield processPosixArg(p)
-    Args(inner(Seq(), pss.flatten)).validate(eso)
+    val as = (for (p <- ps) yield processPosixArg(p)).flatten
+    Args(inner(Seq(), as)).validate(so)
   }
 
 }
@@ -362,11 +406,12 @@ trait PosixArg {
 
 /**
   * One or more options.
-  * Each option is a single-letter.
+  * Each option is a single-letter, although the terminating
+  * characters can be a value.
   *
   * @param value the string of options, without the "-" prefix.
   */
-case class PosixOptions(value: String) extends PosixArg
+case class PosixOptionString(value: String) extends PosixArg
 
 /**
   * The value of the preceding option.
@@ -402,7 +447,7 @@ class PosixArgParser extends RegexParsers {
 
   def posixOptionSet: Parser[Seq[PosixArg]] = posixOptions ~ opt(posixOptionValue) ^^ { case p ~ po => p +: po.toSeq }
 
-  def posixOptions: Parser[PosixArg] = "-" ~> """[a-z0-9]+""".r <~ terminator ^^ (s => PosixOptions(s))
+  def posixOptions: Parser[PosixArg] = "-" ~> """[a-zA-Z0-9]+""".r <~ terminator ^^ (s => PosixOptionString(s))
 
   def posixOptionValue: Parser[PosixArg] = nonOption ^^ (s => PosixOptionValue(s))
 
@@ -430,12 +475,59 @@ trait Element extends Ordered[Element] {
 trait Optional
 
 case class Synopsis(es: Seq[Element]) {
+  def getElement(w: String): Option[Element] = find(Some(w))
+
   def find(wo: Option[String]): Option[Element] = wo match {
     case Some(w) => es.find(e => e.value == w)
     case _ => None
   }
 
   def mandatoryAndOptionalElements: (Seq[Element], Seq[Element]) = es partition (!_.isOptional)
+}
+
+/**
+  * This represents an "Option" in the parlance of POSIX command line interpretation
+  *
+  * CONSIDER: rename this to "Flag"
+  *
+  * @param value the (single-character) String representing the command
+  */
+case class Command(value: String) extends Element
+
+/**
+  * This represents an Option Value in the parlance of POSIX.
+  *
+  * @param value the String
+  */
+case class Value(value: String) extends Element
+
+/**
+  * This represents an "Option" and its "Value"
+  *
+  * @param value   the command or "option" String
+  * @param element the Element which corresponds to the "value" of this synopsis command (and which may of course be OptionalElement).
+  */
+case class CommandWithValue(value: String, element: Element) extends Element {
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case CommandWithValue(x, y) => value == x && element == y
+    case _ => false
+  }
+}
+
+/**
+  * This represents an optional synopsis element, either an optional command, or an optional value.
+  *
+  * @param element a synopsis element that is optional
+  */
+case class OptionalElement(element: Element) extends Element with Optional {
+  def value: String = element.value
+
+  override def isOptional: Boolean = true
+
+  override def equals(obj: scala.Any): Boolean = obj match {
+    case e: Element => e.isOptional && value == e.value
+    case _ => false
+  }
 }
 
 class PosixSynopsisParser extends RegexParsers {
@@ -448,39 +540,6 @@ class PosixSynopsisParser extends RegexParsers {
   }
 
   override def skipWhitespace: Boolean = false
-
-  /**
-    * This represents an "Option" in the parlance of POSIX command line interpretation
-    *
-    * @param value the (single-character) String representing the command
-    */
-  case class Command(value: String) extends Element
-
-  /**
-    * This represents an Option Value in the parlance of POSIX.
-    *
-    * @param value the String
-    */
-  case class Value(value: String) extends Element
-
-  /**
-    * This represents an "Option" and its "Value"
-    *
-    * @param value   the command or "option" String
-    * @param element the Element which corresponds to the "value" of this synopsis command (and which may of course be OptionalElement).
-    */
-  case class CommandWithValue(value: String, element: Element) extends Element
-
-  /**
-    * This represents an optional synopsis element, either an optional command, or an optional value.
-    *
-    * @param element a synopsis element that is optional
-    */
-  case class OptionalElement(element: Element) extends Element with Optional {
-    def value: String = element.value
-
-    override def isOptional: Boolean = true
-  }
 
   /**
     * A "synopsis" of command line options and their potential argument values.
@@ -516,11 +575,18 @@ class PosixSynopsisParser extends RegexParsers {
     *
     * @return a Parser[Element] which is EITHER: a Parser[Command] OR: a Parser[CommandWithValue]
     */
-  def optionWithOrWithoutValue: Parser[Element] = (command ~ value | command) ^^ {
+  def optionWithOrWithoutValue: Parser[Element] = (command ~ optionalValue | command ~ value | command) ^^ {
     case o: Element => o
     case (o: Element) ~ (v: Element) => CommandWithValue(o.value, v)
     case _ => throw new Exception("")
   }
+
+  /**
+    * An optionalValue matches "[" "value" "]"
+    *
+    * @return a Parser[OptionalElement]
+    */
+  def optionalValue: Parser[Element] = openBracket ~> value <~ closeBracket ^^ { e => OptionalElement(e) }
 
   /**
     * A value matches EITHER: a space [which is ignored] followed by a valueToken1 OR: a valueToken2
@@ -572,3 +638,5 @@ case class ValidationException[X](a: Args[X], s: Synopsis) extends ArgsException
 case class InvalidOptionException[X](arg: Arg[X]) extends ArgsException(s"Arg ${arg.name} not valid")
 
 case class CompareException(str: String) extends ArgsException(s"Arg compare exception: $str")
+
+case class NoOptionInSynopsisException(str: String) extends ArgsException(s"parse error: option $str was not found in synopsis")
