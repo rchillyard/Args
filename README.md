@@ -82,9 +82,24 @@ The signature of the *process* method is:
 The args are processed as *side-effects* (!!) but any operands are returned in the result.
 If any exceptions are thrown by the functions, the result will be a *Failure* and not a *Success*.
 
-An alternative to invoking *process* is to split the *Args* up into options and operands using the *options* and *positional* methods:
+An alternative to invoking *process* is to split the *Args* up into options and operands using the *options* and *operands* methods:
 
     def options: Map[String, Option[X]]
-    def positional: Seq[X]
+    def operands: Seq[X]
 
 Please see the *ArgsSpec* class for more examples of invoking the various methods available.
+
+## More on (posix) validation
+
+The following strings are valid synopsis/command line pairs/tuples (separated by "<-->"):
+
+    -f filename <--> -f README.md
+    -f[ filename]  <--> -f README.md <--> -f
+    -[f filename] <--> -f README.md <--> 
+    -[f[ filename]] <--> -f README.md <--> -fREADME.md <--> -f <--> 
+    -xf filename <--> -xf README.md <--> -x -f README.md
+    -x operand1 [operand2] <--> -f 1 <--> <--> -f 1 2
+    
+Square brackets make the option or its parameter optional.
+Options can be combined in the synopsis (and in the command line) but, in the command line,
+an option which is optional must be the last of any group.
