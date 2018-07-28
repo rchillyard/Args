@@ -10,7 +10,7 @@ import com.phasmidsoftware.util.{Kleenean, Maybe}
 import scala.util._
 
 /**
-  * Case class to represent an "option" in a flag line.
+  * Case class to represent an "option" in a command line.
   * Such an option has an (optional) name which is a String;
   * and an (optional) value, which is of type X.
   *
@@ -155,17 +155,20 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @param w the synopsis
     * @return this Args, assuming that all is OK
     */
-  def validate(w: String): Args[X] = validate(new SynopsisParser().parseSynopsis(Some(w)))
+  def validate(w: String): Args[X] = validate(new SynopsisParser().parseOptionalSynopsis(Some(w)))
 
   /**
-    * Method to validate this Args according to the (optional) synopsis given as so.
-    * @param so the optional Synopsis.
-    * @return this, provided that the so is not None and that the result of calling validate(Synopsis) is true.
+    * Method to validate this Args according to the (optional) synopsis given as sy.
+    *
+    * // CONSIDER returning Try[Args[X] and/or using lift
+    *
+    * @param sy the optional Synopsis.
+    * @return this, provided that the sy is not a Failure and that the result of calling validate(Synopsis) is true.
     * @throws ValidationException if validation returns false.
     * @throws InvalidOptionException if any Arg cannot be found in the synopsis.
     */
-  def validate(so: Option[Synopsis]): Args[X] = so match {
-    case Some(s) => if (validate(s)) this else throw ValidationException(this, s)
+  def validate(sy: Try[Synopsis]): Args[X] = sy match {
+    case Success(s) => if (validate(s)) this else throw ValidationException(this, s)
     case _ => this
   }
 
@@ -210,6 +213,15 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @return a sequence of X values.
     */
   def operands: Seq[X] = (for (xa <- xas) yield xa.operand).flatten
+
+  /**
+    * Get the operands (positional arguments) as a map of String->X pairs.
+    * This is achieved by matching up the names of operands from the synopsis (given) with the operands.
+    *
+    * @param s the synopsis from which we will derive the operand names.
+    * @return a map of String->X pairs.
+    */
+  def operands(s: Synopsis): Map[String, X] = (s.operands zip operands).toMap
 
   /**
     * Method to get an Arg whose name matches the given string.
@@ -301,12 +313,12 @@ object Args {
   def create(args: Arg[String]*): Args[String] = apply(args)
 
   private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Args[String] = {
-    val so = (new SynopsisParser).parseSynopsis(wo)
+    val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
     def processPosixArg(p: PosixArg): Seq[PosixArg] = p match {
       case PosixOptionString(w) =>
-        so match {
-          case Some(s) =>
+        sy match {
+          case Success(s) =>
             val cEm: Map[Char, Element] = prune(for (c <- w) yield c -> s.find(Some(c.toString)))
 
             def inner2(ws: Seq[PosixArg], cs: List[Char]): Seq[PosixArg] = cs match {
@@ -343,7 +355,7 @@ object Args {
     }
 
     val as = (for (p <- ps) yield processPosixArg(p)).flatten
-    Args(inner(Seq(), as)).validate(so)
+    Args(inner(Seq(), as)).validate(sy)
   }
 
 }

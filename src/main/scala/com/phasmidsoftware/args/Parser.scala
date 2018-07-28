@@ -4,11 +4,16 @@
 
 package com.phasmidsoftware.args
 
+import com.phasmidsoftware.util.MonadOps._
+
 import scala.util._
 import scala.util.parsing.combinator.RegexParsers
 
 /**
   * Parser of POSIX-style command lines.
+  *
+  * TODO there is a problem with testing equality of Elements (it's too liberal)
+  *
   */
 class Parser extends RegexParsers {
 
@@ -77,6 +82,12 @@ trait Element extends Ordered[Element] {
   def isOptional: Boolean = false
 
   def compare(that: Element): Int = value compare that.value
+
+  def asOperand: Option[String] = this match {
+    case Operand(x) => Some(x)
+    case OptionalElement(Operand(x)) => Some(x)
+    case _ => None
+  }
 }
 
 case class Synopsis(es: Seq[Element]) {
@@ -88,10 +99,12 @@ case class Synopsis(es: Seq[Element]) {
   }
 
   def mandatoryAndOptionalElements: (Seq[Element], Seq[Element]) = es partition (!_.isOptional)
+
+  def operands: Seq[String] = es.flatMap(e => e.asOperand)
 }
 
 /**
-  * This represents an "Option" in the parlance of POSIX flag line interpretation (but formerly these options were known as flags)
+  * This represents an "Option" in the parlance of POSIX command line interpretation (but formerly these options were known as flags)
   *
   * @param value the (single-character) String representing the option (flag)
   */
@@ -103,6 +116,13 @@ case class Flag(value: String) extends Element
   * @param value the String
   */
 case class Value(value: String) extends Element
+
+/**
+  * This represents an operand in the parlance of POSIX.
+  *
+  * @param value the String
+  */
+case class Operand(value: String) extends Element
 
 /**
   * This represents an "Option" and its "Value"
@@ -134,23 +154,36 @@ case class OptionalElement(element: Element) extends Element {
 }
 
 class SynopsisParser extends RegexParsers {
-  def parseSynopsis(wo: Option[String]): Option[Synopsis] = wo match {
-    case Some(w) => parseAll(synopsis, w) match {
-      case Success(es, _) => Some(Synopsis(es))
+  def parseSynopsis(w: String): Synopsis = parseAll(synopsis, w) match {
+    case Success(es, _) => Synopsis(es)
       case _ => throw new Exception(s"could not parse '$w' as a synopsis")
-    }
-    case _ => None
   }
+
+  def parseOptionalSynopsis(wo: Option[String]): Try[Synopsis] = liftTry(parseSynopsis)(liftOptionToTry(wo))
 
   override def skipWhitespace: Boolean = false
 
   /**
-    * A "synopsis" of flag line options and their potential argument values.
+    * A "synopsis" of command-line options and their potential argument values.
     * It matches a dash ('-') followed by a list of optionalOrRequiredElement OR: an optional list of flagWithOrWithoutValue
     *
     * @return a Parser[Seq[Element]
     */
-  def synopsis: Parser[Seq[Element]] = "-" ~> (optionalElements | rep(optionalOrRequiredElement))
+  def synopsis: Parser[Seq[Element]] = rep(flagGroup) ~ opt(operands) ^^ { case x ~ oo => x.flatten ++ oo.toSeq.flatten }
+
+  def operands: Parser[Seq[Element]] = rep(whiteSpace ~> operand) ~ rep(whiteSpace ~> optionalOperand) ^^ { case x ~ y => x ++ y }
+
+  def optionalOperand: Parser[Element] = openBracket ~> operand <~ closeBracket ^^ (e => OptionalElement(e))
+
+  def operand: Parser[Element] = valueToken1 ^^ (o => Operand(o))
+
+  /**
+    * A "synopsis" of command-line options and their potential argument values.
+    * It matches a dash ('-') followed by a list of optionalOrRequiredElement OR: an optional list of flagWithOrWithoutValue
+    *
+    * @return a Parser[Seq[Element]
+    */
+  def flagGroup: Parser[Seq[Element]] = "-" ~> (optionalElements | rep(optionalOrRequiredElement))
 
   /**
     * An optionalOrRequiredElement matches EITHER: an optionalElement OR: a flagWithOrWithoutValue

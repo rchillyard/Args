@@ -115,9 +115,24 @@ class ArgsSpec extends FlatSpec with Matchers {
     target.options shouldBe Map(sX -> Some(s1))
   }
 
-  it should "implement operands" in {
+  it should "implement operands (form 1)" in {
     val target = Args.parse(Array(s1))
     target.operands shouldBe Seq(s1)
+  }
+
+  // TODO fix the problem whereby theses synopsis strings require a space prefix
+  it should "implement operands (form 2) (1)" in {
+    val target = Args.parse(Array(s1))
+    val p = new SynopsisParser
+    val s = p.parseSynopsis(" first [second]")
+    target.operands(s) shouldBe Map("first" -> s1)
+  }
+
+  it should "implement operands (form 2) (2)" in {
+    val target = Args.parse(Array(s1, sX))
+    val p = new SynopsisParser
+    val s = p.parseSynopsis(" first [second]")
+    target.operands(s) shouldBe Map("first" -> s1, "second" -> sX)
   }
 
   it should "process " + sX + ": append" in {

@@ -6,7 +6,7 @@ package com.phasmidsoftware.args
 
 import org.scalatest.{FlatSpec, Matchers}
 
-import scala.util.{Failure, Success}
+import scala.util.{Success, Try}
 
 class ParserSpec extends FlatSpec with Matchers {
 
@@ -93,6 +93,18 @@ class ParserSpec extends FlatSpec with Matchers {
   }
 
   behavior of "SynopsisParser"
+  it should "parse x as a valueToken1" in {
+    val p = new SynopsisParser
+    val xyz = "xyz"
+    val cr = p.parse(p.valueToken1, xyz)
+    cr should matchPattern { case p.Success(`xyz`, _) => }
+  }
+  it should "parse x as a valueToken2" in {
+    val p = new SynopsisParser
+    val xyz = "XYZ"
+    val cr = p.parse(p.valueToken2, xyz)
+    cr should matchPattern { case p.Success(`xyz`, _) => }
+  }
   it should "parse x as OptionToken" in {
     val p = new SynopsisParser
     val cr = p.parse(p.flag, "x")
@@ -170,19 +182,72 @@ class ParserSpec extends FlatSpec with Matchers {
     val esr = p.parse(p.optionalElements, "[xf filename]")
     esr should matchPattern { case p.Success(_, _) => }
   }
+  it should """parse " first" as operands""" in {
+    val p = new SynopsisParser
+    val vr = p.parse(p.operands, " first")
+    vr should matchPattern { case p.Success(Seq(Operand("first")), _) => }
+  }
+  it should """parse " first second" as operands""" in {
+    val p = new SynopsisParser
+    val vr = p.parse(p.operands, " first second")
+    vr should matchPattern { case p.Success(Seq(Operand("first"), Operand("second")), _) => }
+  }
+  it should """parse " first [second]" as operands""" in {
+    val p = new SynopsisParser
+    val vr = p.parse(p.phrase(p.operands), " first [second]")
+    vr should matchPattern { case p.Success(Seq(Operand("first"), OptionalElement(Operand("second"))), _) => }
+  }
+  it should """parse "first" as operand""" in {
+    val p = new SynopsisParser
+    val vr = p.parse(p.operand, "first")
+    vr should matchPattern { case p.Success(Operand("first"), _) => }
+  }
+  it should """parse "[first]" as optional operand""" in {
+    val p = new SynopsisParser
+    val vr = p.parse(p.optionalOperand, "[first]")
+    vr should matchPattern { case p.Success(OptionalElement(Operand("first")), _) => }
+  }
+  it should "parse -x[f filename] as a flag group" in {
+    val p = new SynopsisParser
+    val esr = p.parse(p.flagGroup, "-x[f filename]")
+    esr should matchPattern { case p.Success(_, _) => }
+    println(esr)
+    esr.get shouldBe Seq(Flag("x"), OptionalElement(FlagWithValue("f", Value("filename"))))
+  }
+
+  behavior of "parseSynopsis"
   it should "parse -x[f filename] as a synopsis" in {
     val p = new SynopsisParser
-    val so: Option[Synopsis] = p.parseSynopsis(Some("-x[f filename]"))
-    so shouldBe Some(Synopsis(Seq(Flag("x"), OptionalElement(FlagWithValue("f", Value("filename"))))))
+    val s: Synopsis = p.parseSynopsis("-x[f filename]")
+    s shouldBe Synopsis(Seq(Flag("x"), OptionalElement(FlagWithValue("f", Value("filename")))))
   }
   it should "parse -[xf filename]" in {
     val p = new SynopsisParser
-    val so: Option[Synopsis] = p.parseSynopsis(Some("-[xf filename]"))
-    so shouldBe Some(Synopsis(Seq(OptionalElement(Flag("x")), OptionalElement(FlagWithValue("f", Value("filename"))))))
+    val s = p.parseSynopsis("-[xf filename]")
+    s shouldBe Synopsis(Seq(OptionalElement(Flag("x")), OptionalElement(FlagWithValue("f", Value("filename")))))
   }
   it should "parse -x[f[ filename]]" in {
     val p = new SynopsisParser
-    val so: Option[Synopsis] = p.parseSynopsis(Some("-x[f[ filename]]"))
-    so shouldBe Some(Synopsis(Seq(Flag("x"), OptionalElement(FlagWithValue("f", Value("filename"))))))
+    val s = p.parseSynopsis("-x[f[ filename]]")
+    s shouldBe Synopsis(Seq(Flag("x"), OptionalElement(FlagWithValue("f", OptionalElement(Value("filename"))))))
   }
+  it should "parse -x[f[ filename]] first" in {
+    val p = new SynopsisParser
+    val s = p.parseSynopsis("-x[f[ filename]] first")
+    s shouldBe Synopsis(List(Flag("x"), OptionalElement(FlagWithValue("f", OptionalElement(Value("filename")))), Operand("first")))
+  }
+
+  it should "parse -x[f[ filename]] first [second]" in {
+    val p = new SynopsisParser
+    val s = p.parseSynopsis("-x[f[ filename]] first [second]")
+    s shouldBe Synopsis(List(Flag("x"), OptionalElement(FlagWithValue("f", OptionalElement(Value("filename")))), Operand("first"), OptionalElement(Operand("second"))))
+  }
+
+  behavior of "parseOptionalSynopsis"
+  it should "parse -x[f filename] as a synopsis" in {
+    val p = new SynopsisParser
+    val so: Try[Synopsis] = p.parseOptionalSynopsis(Some("-x[f filename]"))
+    so shouldBe Success(Synopsis(Seq(Flag("x"), OptionalElement(FlagWithValue("f", Value("filename"))))))
+  }
+
 }
