@@ -77,12 +77,33 @@ case class PosixOperand(value: String) extends PosixArg
   * This represents an element in the synopsis for a command line
   */
 trait Element extends Ordered[Element] {
+  /**
+    * Method to yield the value (name) of this Element
+    *
+    * @return the value/name
+    */
   def value: String
 
+  /**
+    * Method to determine if this Element is optional.
+    *
+    * @return true if this Element is optional.
+    */
   def isOptional: Boolean = false
 
+  /**
+    * Method to compare this Element with that Element.
+    *
+    * @param that the comparand.
+    * @return the result of invoking value compare that.value
+    */
   def compare(that: Element): Int = value compare that.value
 
+  /**
+    * Method to yield an optional String according as whether this Element is an operand.
+    *
+    * @return optionally the value of this Operand element (includes optional elements); None if this Element is not an operand.
+    */
   def asOperand: Option[String] = this match {
     case Operand(x) => Some(x)
     case OptionalElement(Operand(x)) => Some(x)
@@ -91,15 +112,39 @@ trait Element extends Ordered[Element] {
 }
 
 case class Synopsis(es: Seq[Element]) {
-  def getElement(w: String): Option[Element] = find(Some(w))
+  /**
+    * Method to get an element by value (basically that's its name).
+    *
+    * TEST this method
+    *
+    * @param value the value to find
+    * @return an Option[Element]
+    */
+  def getElement(value: String): Option[Element] = find(Some(value))
 
+  /**
+    * Method to find an element by its value (basically that's its name)
+    *
+    * @param wo an optional value string
+    * @return an Option[Element]
+    */
   def find(wo: Option[String]): Option[Element] = wo match {
     case Some(w) => es.find(e => e.value == w)
     case _ => None
   }
 
+  /**
+    * Method to distinguish between mandatory and optional elements.
+    *
+    * @return a tuple of Element sequences--first is the mandatory elements, second is the optional elements.
+    */
   def mandatoryAndOptionalElements: (Seq[Element], Seq[Element]) = es partition (!_.isOptional)
 
+  /**
+    * Method to get the operands (the non-option parameters) as a sequence of Strings
+    *
+    * @return Seq[String]
+    */
   def operands: Seq[String] = es.flatMap(e => e.asOperand)
 }
 
@@ -171,11 +216,11 @@ class SynopsisParser extends RegexParsers {
     */
   def synopsis: Parser[Seq[Element]] = rep(flagGroup) ~ opt(operands) ^^ { case x ~ oo => x.flatten ++ oo.toSeq.flatten }
 
-  def operands: Parser[Seq[Element]] = rep(whiteSpace ~> operand) ~ rep(whiteSpace ~> optionalOperand) ^^ { case x ~ y => x ++ y }
+  def operands: Parser[Seq[Element]] = rep(opt(whiteSpace) ~> operand) ~ rep(opt(whiteSpace) ~> optionalOperand) ^^ { case x ~ y => x ++ y }
 
   def optionalOperand: Parser[Element] = openBracket ~> operand <~ closeBracket ^^ (e => OptionalElement(e))
 
-  def operand: Parser[Element] = valueToken1 ^^ (o => Operand(o))
+  def operand: Parser[Element] = operandToken ^^ (o => Operand(o))
 
   /**
     * A "synopsis" of command-line options and their potential argument values.
@@ -241,6 +286,8 @@ class SynopsisParser extends RegexParsers {
   /**
     * A valueToken2 matches an uppercase letter followed by any number of non-space, non-bracket symbols
     *
+    * CONSIDER should not allow "-"
+    *
     * @return a Parser[String]
     */
   val valueToken2: Parser[String] = """\p{Lu}[^\[\]\s]*""".r
@@ -248,9 +295,18 @@ class SynopsisParser extends RegexParsers {
   /**
     * A valueToken1 matches at least one non-space, non-bracket symbol
     *
+    * CONSIDER should not allow "-"
+    *
     * @return a Parser[String]
     */
   val valueToken1: Parser[String] = """[^\[\]\s]+""".r
+
+  /**
+    * A operandToken matches at least one non-space, non-dash, non-bracket symbol
+    *
+    * @return a Parser[String]
+    */
+  val operandToken: Parser[String] = """[^-\[\]\s]+""".r
 
   private val openBracket = """\[""".r
   private val closeBracket = """\]""".r

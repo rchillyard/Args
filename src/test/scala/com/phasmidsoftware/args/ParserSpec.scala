@@ -182,19 +182,19 @@ class ParserSpec extends FlatSpec with Matchers {
     val esr = p.parse(p.optionalElements, "[xf filename]")
     esr should matchPattern { case p.Success(_, _) => }
   }
-  it should """parse " first" as operands""" in {
+  it should """parse "first" as operands""" in {
     val p = new SynopsisParser
-    val vr = p.parse(p.operands, " first")
+    val vr = p.parse(p.operands, "first")
     vr should matchPattern { case p.Success(Seq(Operand("first")), _) => }
   }
-  it should """parse " first second" as operands""" in {
+  it should """parse "first second" as operands""" in {
     val p = new SynopsisParser
-    val vr = p.parse(p.operands, " first second")
+    val vr = p.parse(p.operands, "first second")
     vr should matchPattern { case p.Success(Seq(Operand("first"), Operand("second")), _) => }
   }
-  it should """parse " first [second]" as operands""" in {
+  it should """parse "first [second]" as operands""" in {
     val p = new SynopsisParser
-    val vr = p.parse(p.phrase(p.operands), " first [second]")
+    val vr = p.parse(p.phrase(p.operands), "first [second]")
     vr should matchPattern { case p.Success(Seq(Operand("first"), OptionalElement(Operand("second"))), _) => }
   }
   it should """parse "first" as operand""" in {
@@ -211,7 +211,6 @@ class ParserSpec extends FlatSpec with Matchers {
     val p = new SynopsisParser
     val esr = p.parse(p.flagGroup, "-x[f filename]")
     esr should matchPattern { case p.Success(_, _) => }
-    println(esr)
     esr.get shouldBe Seq(Flag("x"), OptionalElement(FlagWithValue("f", Value("filename"))))
   }
 

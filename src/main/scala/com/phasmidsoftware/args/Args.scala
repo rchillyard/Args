@@ -275,7 +275,7 @@ object Args {
     * @param args the command line arguments.
     * @return the arguments parsed as an Args[String].
     */
-  def parse(args: Array[String]): Args[String] = {
+  def parseSimple(args: Array[String]): Args[String] = {
     val p = new SimpleArgParser
 
     def inner(r: Seq[Arg[String]], w: Seq[p.Token]): Seq[Arg[String]] = w match {
@@ -300,7 +300,7 @@ object Args {
     * @param synopsis the (optional) syntax template which will be used, if not None, to validate the options.
     * @return the arguments parsed as an Args[String].
     */
-  def parsePosix(args: Array[String], synopsis: Option[String] = None): Args[String] = doParse((new Parser).parseCommandLine(args), synopsis)
+  def parse(args: Array[String], synopsis: Option[String] = None): Args[String] = doParse((new Parser).parseCommandLine(args), synopsis)
 
   /**
     * Method to create an Args object from a variable number of Arg parameters.
