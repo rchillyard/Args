@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Phasmid Software
+ * Copyright (c) 2018 Phasmid Software, Project Args.
  */
 
 package com.phasmidsoftware.args

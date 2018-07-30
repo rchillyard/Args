@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018. Phasmid Software
+ * Copyright (c) 2018 Phasmid Software, Project Args.
  */
 
 package com.phasmidsoftware.args
@@ -10,7 +10,7 @@ import com.phasmidsoftware.util.{Kleenean, Maybe}
 import scala.util._
 
 /**
-  * Case class to represent an "option" in a flag line.
+  * Case class to represent an "option" in a command line.
   * Such an option has an (optional) name which is a String;
   * and an (optional) value, which is of type X.
   *
@@ -85,13 +85,13 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 
   /**
     * Method to get the value of this Arg as a Y.
+    *
     * @tparam Y the type of the result.
-    * @return the result of deriving a Y value from the actual value of this Arg.
-    * @throws NoValueException if the value of this Arg is None.
+    * @return the result of deriving a Y value from the actual value of this Arg, wrapped in Try.
     */
-  def toY[Y: Derivable]: Y = value match {
-    case Some(x) => implicitly[Derivable[Y]].deriveFrom(x)
-    case _ => throw NoValueException(name)
+  def toY[Y: Derivable]: Try[Y] = value match {
+    case Some(x) => Success(implicitly[Derivable[Y]].deriveFrom(x))
+    case _ => Failure(NoValueException(name))
   }
 
   /**
@@ -155,22 +155,27 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @param w the synopsis
     * @return this Args, assuming that all is OK
     */
-  def validate(w: String): Args[X] = validate(new SynopsisParser().parseSynopsis(Some(w)))
+  def validate(w: String): Try[Args[X]] = validate(new SynopsisParser().parseOptionalSynopsis(Some(w)))
 
   /**
-    * Method to validate this Args according to the (optional) synopsis given as so.
-    * @param so the optional Synopsis.
-    * @return this, provided that the so is not None and that the result of calling validate(Synopsis) is true.
-    * @throws ValidationException if validation returns false.
+    * Method to validate this Args according to the (optional) synopsis given as sy.
+    *
+    * CONSIDER using lift
+    * CONSIDER using map/recover on sy
+    *
+    * @param sy the optional Synopsis.
+    * @return this, wrapped in Success, provided that the sy is not a Failure and that the result of calling validate(Synopsis) is true.
     * @throws InvalidOptionException if any Arg cannot be found in the synopsis.
     */
-  def validate(so: Option[Synopsis]): Args[X] = so match {
-    case Some(s) => if (validate(s)) this else throw ValidationException(this, s)
-    case _ => this
+  def validate(sy: Try[Synopsis]): Try[Args[X]] = sy match {
+    case Success(s) => if (validate(s)) Success(this) else Failure(ValidationException(this, s))
+    case _ => Success(this)
   }
 
   /**
     * Method to validate this Args according to the given Synopsis.
+    *
+    * CONSIDER returning Try[Boolean]
     *
     * @param s the Synopsis.
     * @return true if all the Arg elements of this are compatible with the synopsis.
@@ -212,6 +217,15 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
   def operands: Seq[X] = (for (xa <- xas) yield xa.operand).flatten
 
   /**
+    * Get the operands (positional arguments) as a map of String->X pairs.
+    * This is achieved by matching up the names of operands from the synopsis (given) with the operands.
+    *
+    * @param s the synopsis from which we will derive the operand names.
+    * @return a map of String->X pairs.
+    */
+  def operands(s: Synopsis): Map[String, X] = (s.operands zip operands).toMap
+
+  /**
     * Method to get an Arg whose name matches the given string.
     *
     * @param w the string to match
@@ -228,9 +242,9 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     *
     * @param w the string to match
     * @tparam Y the result type
-    * @return an option value of Y
+    * @return an option value of Y (None if toY yields a Failure)
     */
-  def getArgValue[Y: Derivable](w: String): Option[Y] = getArg(w) map (xa => xa.toY)
+  def getArgValue[Y: Derivable](w: String): Option[Y] = getArg(w) flatMap (xa => xa.toY.toOption)
 
   /**
     * Method to determine if the argument identified by w is defined.
@@ -261,9 +275,9 @@ object Args {
     * and which cannot be validated.
     *
     * @param args the command line arguments.
-    * @return the arguments parsed as an Args[String].
+    * @return the arguments parsed as an Args[String], wrapped in Try.
     */
-  def parse(args: Array[String]): Args[String] = {
+  def parseSimple(args: Array[String]): Try[Args[String]] = {
     val p = new SimpleArgParser
 
     def inner(r: Seq[Arg[String]], w: Seq[p.Token]): Seq[Arg[String]] = w match {
@@ -274,11 +288,10 @@ object Args {
     }
 
     val tys = for (a <- args) yield p.parseToken(a)
-    val ts = sequence(tys) match {
-      case Success(ts_) => ts_
-      case Failure(x) => System.err.println(x.getLocalizedMessage); Seq[p.Token]()
+    sequence(tys) match {
+      case Success(ts_) => Success(Args(inner(Seq(), ts_)))
+      case Failure(x) => Failure(x)
     }
-    Args(inner(Seq(), ts))
   }
 
   /**
@@ -286,9 +299,9 @@ object Args {
     *
     * @param args the command line arguments.
     * @param synopsis the (optional) syntax template which will be used, if not None, to validate the options.
-    * @return the arguments parsed as an Args[String].
+    * @return the arguments parsed as an Args[String], wrapped in Try.
     */
-  def parsePosix(args: Array[String], synopsis: Option[String] = None): Args[String] = doParse((new Parser).parseCommandLine(args), synopsis)
+  def parse(args: Array[String], synopsis: Option[String] = None): Try[Args[String]] = doParse((new Parser).parseCommandLine(args), synopsis)
 
   /**
     * Method to create an Args object from a variable number of Arg parameters.
@@ -300,13 +313,13 @@ object Args {
     */
   def create(args: Arg[String]*): Args[String] = apply(args)
 
-  private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Args[String] = {
-    val so = (new SynopsisParser).parseSynopsis(wo)
+  private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
+    val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
     def processPosixArg(p: PosixArg): Seq[PosixArg] = p match {
       case PosixOptionString(w) =>
-        so match {
-          case Some(s) =>
+        sy match {
+          case Success(s) =>
             val cEm: Map[Char, Element] = prune(for (c <- w) yield c -> s.find(Some(c.toString)))
 
             def inner2(ws: Seq[PosixArg], cs: List[Char]): Seq[PosixArg] = cs match {
@@ -343,7 +356,7 @@ object Args {
     }
 
     val as = (for (p <- ps) yield processPosixArg(p)).flatten
-    Args(inner(Seq(), as)).validate(so)
+    Try(Args(inner(Seq(), as))) flatMap (_ validate sy)
   }
 
 }
