@@ -56,7 +56,7 @@ But a *map* method is defined which allows an *Arg[X]* to be transformed into an
 An example of parsing with validation is the following:
 
     val args = Array("-f", "argFilename", "operand")
-    val as: Args[String] = Args.parse(args, Some("-f filename"))
+    val say: Try[Args[String]] = Args.parse(args, Some("-f filename"))
     
 This will create an *Args[String]* with two *Arg* elements: one corresponding to *f:filename* and one corresponding to *operand*.
 In this case, filename is a required argument to the f option, and the f option is itself required.
@@ -66,12 +66,12 @@ There is another form of *parse* which takes only the args parameter.
 In this case, there will be no validation.
 
     val args = Array("-f", "argFilename", "operand")
-    val as: Args[String] = Args.parse(args)
+    val say: Try[Args[String]] = Args.parse(args)
 
 There is another method for parsing which doesn't require POSIX-style and so cannot be validated:
 
     val args = Array("-f", "argFilename", "operand")
-    val as: Args[String] = Args.parseSimple(args)
+    val say: Try[Args[String]] = Args.parseSimple(args)
 
 Once parsed and validated, an *Args* object can be processed by invoking the *process* method with a
 map of "name"->function pairs.
@@ -126,7 +126,7 @@ an option which is optional must be the last of any group.
     def map[Y](f: X => Y): Arg[Y]
     def asOption: Option[(String, Option[X])]
     def operand: Option[X]
-    def toY[Y: Derivable]: Y
+    def toY[Y: Derivable]: Try[Y]
     def process(fm: Map[String, Option[X] => Unit]): Try[Option[X]]
     def process(c: String): Try[Option[X]]
     def compare(that: Arg[X]): Int
