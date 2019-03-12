@@ -253,6 +253,31 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
 
   def iterator: Iterator[Arg[X]] = xas.iterator
 
+  /**
+    * Method to process one Arg and return the remainder of the arguments as an Args.
+    *
+    * @param f a partially-defined function which can process the arg.
+    * @return if f is defined for the Arg, then return the remainder; otherwise return this as is.
+    * @throws MatchError         if the head Arg does not match function f.
+    * @throws EmptyArgsException if this Args is empty.
+    */
+  def matchAndShift(f: PartialFunction[Arg[X], Unit]): Args[X] = matchAndShiftOrElse(f)(throw new MatchError())
+
+  /**
+    * Method to process one Arg and return the remainder of the arguments as an Args.
+    * In this form of the method, a failure to match by function f will result in the default value being returned.
+    *
+    * @param f       a partially-defined function which can process the arg.
+    * @param default a call-by-name value which will be returned in the event that function f is not defined for the actual Arg at the head of the list.
+    * @return if f is defined for the Arg, then return the remainder; otherwise return the result of invoking default.
+    * @throws EmptyArgsException if this Args is empty.
+    */
+  def matchAndShiftOrElse(f: PartialFunction[Arg[X], Unit])(default: => Args[X]): Args[X] = xas match {
+    case xa :: tail => if (f.isDefinedAt(xa)) {
+      f(xa); Args(tail)
+    } else default
+    case Nil => throw EmptyArgsException
+  }
 }
 
 object Args {
@@ -299,6 +324,8 @@ object Args {
     * @return the arguments parsed as an Args[String].
     */
   def create(args: Arg[String]*): Args[String] = apply(args)
+
+  def apply(): Args[String] = apply(Nil)
 
   private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Args[String] = {
     val so = (new SynopsisParser).parseSynopsis(wo)

@@ -120,6 +120,28 @@ class ArgsSpec extends FlatSpec with Matchers {
     target.operands shouldBe Seq(s1)
   }
 
+  it should "implement toList" in {
+    val sa = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    sa.toList shouldBe List(Arg(Some("f"), Some("argFilename")), Arg(None, Some("3.1415927")))
+  }
+
+  it should "do implement matchAndShift 1" in {
+    val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    a[MatchError] shouldBe thrownBy(sa.matchAndShift { case Arg(None, None) => })
+  }
+
+  it should "do implement matchAndShift 2" in {
+    val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    println(sa.matchAndShift { case Arg(Some(name), Some(file)) => println(s"$name $file") })
+    sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => println("f argFilename") } shouldBe Args(List(Arg(None, Some("3.1415927"))))
+    sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.map[Double](_.toDouble).matchAndShift { case Arg(None, Some(3.1415927)) => println("3.1415927") } shouldBe Args(List())
+  }
+
+  it should "do implement matchAndShiftOrElse" in {
+    val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    sa.matchAndShiftOrElse { case Arg(None, None) => } ( Args() ) shouldBe Args()
+  }
+
   it should "process " + sX + ": append" in {
     val sA = "a"
     val sb = new StringBuilder

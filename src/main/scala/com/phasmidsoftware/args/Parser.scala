@@ -255,9 +255,16 @@ class SimpleArgParser extends RegexParsers {
     */
   def flag: Parser[Flag] = "-" ~> cmdR ^^ (s => Flag(s))
 
+  /**
+    * An argument can be made up of alphabetic and numeric characters, including "." but not "-"
+    *
+    * TODO should make this more flexible.
+    *
+    * @return a Parser[Argument]
+    */
   def argument: Parser[Argument] = argR ^^ (s => Argument(s))
 
   private val cmdR = """[a-z]+""".r
-  private val argR = """\w+""".r
+  private val argR = """[\w\.]+""".r
 }
 
