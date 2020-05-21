@@ -4,11 +4,12 @@
 
 package com.phasmidsoftware.args
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec
+import org.scalatest.matchers.should
 
 import scala.util.{Failure, Success}
 
-class ArgsSpec extends FlatSpec with Matchers {
+class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   private val argFilename = "argFilename"
   private val nameF = "f"
@@ -23,7 +24,6 @@ class ArgsSpec extends FlatSpec with Matchers {
   val processor: Map[String, Option[String] => Unit] = Map[String, Option[String] => Unit](nameF -> printFilename)
 
   behavior of "Arg"
-
   it should "work for " + sX + ": " + s1 in {
     val target = Arg(sX, s1)
     target.name shouldBe Some(sX)
@@ -86,7 +86,7 @@ class ArgsSpec extends FlatSpec with Matchers {
 
   it should "implement map" in {
     val target = Args.create(Arg(sX, s1))
-    val result = target.map[Int](_.toInt)
+    val result: Args[Int] = target.map(_.toInt)
     result.head.value shouldBe Some(x1)
   }
 
@@ -134,12 +134,13 @@ class ArgsSpec extends FlatSpec with Matchers {
     val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
     println(sa.matchAndShift { case Arg(Some(name), Some(file)) => println(s"$name $file") })
     sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => println("f argFilename") } shouldBe Args(List(Arg(None, Some("3.1415927"))))
-    sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.map[Double](_.toDouble).matchAndShift { case Arg(None, Some(3.1415927)) => println("3.1415927") } shouldBe Args(List())
+    val z: Args[Double] = sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.map(_.toDouble)
+    z.matchAndShift { case Arg(None, Some(3.1415927)) => println("3.1415927") } shouldBe Args(List())
   }
 
   it should "do implement matchAndShiftOrElse" in {
     val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
-    sa.matchAndShiftOrElse { case Arg(None, None) => } ( Args() ) shouldBe Args()
+    sa.matchAndShiftOrElse { case Arg(None, None) => }(Args.empty) shouldBe Args.empty
   }
 
   it should "process " + sX + ": append" in {
@@ -163,7 +164,7 @@ class ArgsSpec extends FlatSpec with Matchers {
     val sa = Args.parse(Array("1", "2", "3"))
     sa.xas.length shouldBe 3
     sa.xas.head shouldBe Arg(None, Some("1"))
-    val xa = sa.map[Int](_.toInt)
+    val xa: Args[Int] = sa.map(_.toInt)
     xa shouldBe Args(Seq(Arg(None, Some(1)), Arg(None, Some(2)), Arg(None, Some(3))))
     val processor = Map[String, Option[Int] => Unit]()
     xa.process(processor) should matchPattern { case Success(Seq(1, 2, 3)) => }
@@ -173,7 +174,7 @@ class ArgsSpec extends FlatSpec with Matchers {
     val sa = Args.parse(Array("1", "2", "3"))
     sa.xas.length shouldBe 3
     sa.xas.head shouldBe Arg(None, Some("1"))
-    val xa = sa.map[Int](_.toInt)
+    val xa: Args[Int] = sa.map(_.toInt)
     xa shouldBe Args(Seq(Arg(None, Some(1)), Arg(None, Some(2)), Arg(None, Some(3))))
     val processor = Map[String, Option[Int] => Unit]()
     xa.process(processor) should matchPattern { case Success(Seq(1, 2, 3)) => }
@@ -222,6 +223,12 @@ class ArgsSpec extends FlatSpec with Matchers {
     filename shouldBe "argFilename"
   }
 
+  it should "as" in {
+    val sa = Args.parse(Array("1", "2", "3"))
+    val ia: Args[Int] = sa.as
+    ia.operands shouldBe Seq(1, 2, 3)
+  }
+
   behavior of "Args validation"
   it should "parse " + cmdF + " " + argFilename in {
     val args = Array(cmdF, argFilename, "positionalArg")
@@ -249,13 +256,104 @@ class ArgsSpec extends FlatSpec with Matchers {
     val sa = Args.parsePosix(Array("-xf", "argFilename", "-p", "3.1415927"))
     sa.validate("-x[f filename][p number]") shouldBe sa
     // TODO why does the following not work?
-//    sa.validate("-xf filename -p number") shouldBe sa
+    //    sa.validate("-xf filename -p number") shouldBe sa
   }
 
   it should "validate -x[f[ filename]] as a synopsis for -xfargFilename" in {
     Args.parsePosix(Array("-xfargFilename"), Some("-x[f[ filename]]")) shouldBe Args.create(Arg("x"), Arg("f", "argFilename"))
   }
 
+  it should "$greater" in {
+
+  }
+
+  it should "compare" in {
+
+  }
+
+  it should "isOption" in {
+
+  }
+
+  it should "toString" in {
+
+  }
+
+  it should "compareTo" in {
+
+  }
+
+  it should "copy" in {
+
+  }
+
+  it should "$less" in {
+
+  }
+
+  it should "productPrefix" in {
+
+  }
+
+  it should "process" in {
+
+  }
+
+  it should "isOptional" in {
+
+  }
+
+  it should "operand" in {
+
+  }
+
+  it should "productIterator" in {
+
+  }
+
+  it should "byName" in {
+
+  }
+
+  it should "map" in {
+
+  }
+
+  it should "$less$eq" in {
+
+  }
+
+  it should "asOption" in {
+
+  }
+
+  it should "value" in {
+
+  }
+
+  it should "hasValue" in {
+
+  }
+
+  it should "toY" in {
+
+  }
+
+  it should "name" in {
+
+  }
+
+  it should "$greater$eq" in {
+
+  }
+
+  it should "apply" in {
+
+  }
+
+  it should "unapply" in {
+
+  }
 
 }
 

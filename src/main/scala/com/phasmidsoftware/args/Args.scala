@@ -121,6 +121,14 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     */
   override def toString: String = s"Arg: flag ${name.getOrElse("anonymous")} with value: ${value.getOrElse("none")}"
 
+  /**
+    * Method to compare this Arg with that.
+    *
+    * TEST this method.
+    *
+    * @param that the Arg to compare with.
+    * @return the result of invoking x compare y where x and y are the values of this and that Args.
+    */
   def compare(that: Arg[X]): Int = name match {
     case Some(x) => that.name match {
       case Some(y) => x compare y
@@ -198,6 +206,15 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
   def map[Y](f: X => Y): Args[Y] = Args(for (xa <- xas) yield xa.map(f))
 
   /**
+    * Convert this Args[X] to an Args[Y].
+    * In practice, this method invokes map with the function deriveFrom invoked on the Derivable[Y] evidence.
+    *
+    * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
+    * @return an Args[Y].
+    */
+  def as[Y: Derivable]: Args[Y] = map[Y](implicitly[Derivable[Y]].deriveFrom[X](_))
+
+  /**
     * Get the options (i.e. args with names) as map of names to (optional) values
     *
     * @return the options as a map
@@ -261,7 +278,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @throws MatchError         if the head Arg does not match function f.
     * @throws EmptyArgsException if this Args is empty.
     */
-  def matchAndShift(f: PartialFunction[Arg[X], Unit]): Args[X] = matchAndShiftOrElse(f)(throw new MatchError())
+  def matchAndShift(f: PartialFunction[Arg[X], Unit]): Args[X] = matchAndShiftOrElse(f)(throw new MatchError("matchAndShift"))
 
   /**
     * Method to process one Arg and return the remainder of the arguments as an Args.
@@ -281,6 +298,8 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
 }
 
 object Args {
+  def empty[T]: Args[T] = Args(Nil)
+
   /**
     * Method to parse a set of command line arguments that don't necessarily conform to the POSIX standard,
     * and which cannot be validated.
@@ -291,6 +310,7 @@ object Args {
   def parse(args: Array[String]): Args[String] = {
     val p = new SimpleArgParser
 
+    @scala.annotation.tailrec
     def inner(r: Seq[Arg[String]], w: Seq[p.Token]): Seq[Arg[String]] = w match {
       case Nil => r
       case p.Flag(c) :: p.Argument(a) :: t => inner(r :+ Arg(c, a), t)
@@ -299,7 +319,7 @@ object Args {
     }
 
     val tys = for (a <- args) yield p.parseToken(a)
-    val ts = sequence(tys) match {
+    val ts = sequence(tys.toIndexedSeq) match {
       case Success(ts_) => ts_
       case Failure(x) => System.err.println(x.getLocalizedMessage); Seq[p.Token]()
     }
@@ -309,11 +329,11 @@ object Args {
   /**
     * Method to parse a set of command line arguments that conform to the POSIX standard.
     *
-    * @param args the command line arguments.
+    * @param args     the command line arguments.
     * @param synopsis the (optional) syntax template which will be used, if not None, to validate the options.
     * @return the arguments parsed as an Args[String].
     */
-  def parsePosix(args: Array[String], synopsis: Option[String] = None): Args[String] = doParse((new Parser).parseCommandLine(args), synopsis)
+  def parsePosix(args: Array[String], synopsis: Option[String] = None): Args[String] = doParse((new Parser).parseCommandLine(args.toIndexedSeq), synopsis)
 
   /**
     * Method to create an Args object from a variable number of Arg parameters.
@@ -325,7 +345,24 @@ object Args {
     */
   def create(args: Arg[String]*): Args[String] = apply(args)
 
-  def apply(): Args[String] = apply(Nil)
+  /**
+    * Method to create an empty Args[String]
+    *
+    * TEST this
+    *
+    * @return an empty Args[String]
+    */
+  def apply: Args[String] = parse(Seq[String]())
+
+  /**
+    * Method to create an Args[String] from the command line arguments in a main program (or a sub-class of App).
+    *
+    * TEST this
+    *
+    * @param args a Seq[String].
+    * @return an Args[String]
+    */
+  def parse(args: Seq[String]): Args[String] = parse(args.toArray)
 
   private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Args[String] = {
     val so = (new SynopsisParser).parseSynopsis(wo)
@@ -341,6 +378,7 @@ object Args {
               case c :: tail =>
                 cEm.get(c) match {
                   case Some(e) =>
+                    @scala.annotation.tailrec
                     def processElement(e: Element): Seq[PosixArg] = e match {
                       case OptionalElement(x) => processElement(x)
                       case FlagWithValue(_, OptionalElement(_)) => ws ++ Seq(PosixOptionString(c.toString), PosixOptionValue(tail.mkString("")))
@@ -359,6 +397,7 @@ object Args {
       case x => Seq(x)
     }
 
+    @scala.annotation.tailrec
     def inner(r: Seq[Arg[String]], w: Seq[PosixArg]): Seq[Arg[String]] = w match {
       case Nil => r
       case PosixOptionString(o) :: PosixOptionValue(v) :: t => inner(r :+ Arg(o, v), t)

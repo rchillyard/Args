@@ -7,7 +7,7 @@ import scala.util._
   */
 object MonadOps {
 
-  def sequence[X](xys: Seq[Try[X]]): Try[Seq[X]] = (Try(Seq[X]()) /: xys) {
+  def sequence[X](xys: Seq[Try[X]]): Try[Seq[X]] = xys.foldLeft(Try(Seq[X]())) {
     (xsy, xy) => for (xs <- xsy; x <- xy) yield xs :+ x
   }
 

@@ -4,11 +4,12 @@
 
 package com.phasmidsoftware.args
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec
+import org.scalatest.matchers.should
 
-import scala.util.{Failure, Success}
+import scala.util.Success
 
-class ParserSpec extends FlatSpec with Matchers {
+class ParserSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   private val argFilename = "argFilename"
   private val nameF = "f"
