@@ -87,6 +87,8 @@ trait Maybe extends (() => Option[Boolean]) {
     * Method to convert this Maybe into an integer corresponding
     * to the return value of compareTo
     *
+    * TEST this method
+    *
     * @return either 1 (true), 0 (maybe), or -1 (false)
     */
   def toInt: Int = apply() match {
@@ -98,9 +100,11 @@ trait Maybe extends (() => Option[Boolean]) {
   /**
     * Method to deny (invert, negate, ...) this Maybe
     *
+    * TEST this method
+    *
     * @return Some(!x) if exists, else return None
     */
-  def deny = Kleenean(apply() map (!_))
+  def deny: Kleenean = Kleenean(apply() map (!_))
 
   override def toString: String = apply().toString
 }

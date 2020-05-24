@@ -2,11 +2,13 @@ organization := "com.phasmidsoftware"
 
 name := "Args"
 
-version := "1.0.0"
+version := "1.0.1"
 
-scalaVersion := "2.12.5"
+scalaVersion := "2.13.2"
 
-crossScalaVersions := Seq("2.10.6","2.11.8","2.12.5")
+crossScalaVersions := Seq("2.10.7","2.11.12","2.12.11","2.13.2")
+
+scalacOptions += "-deprecation"
 
 val scalaModules = "org.scala-lang.modules"
 val scalaParser = "scala-parser-combinators"
@@ -21,9 +23,13 @@ scalaTestVersion := (scalaBinaryVersion.value match {
   case "2.10" => "2.2.6"
   case "2.11" => "3.0.1"
   case "2.12" => "3.0.5"
+  case "2.13" => "3.1.2"
 })
 
 libraryDependencies ++= (scalaBinaryVersion.value match {
+  case "2.13" =>   Seq(
+    scalaModules %% scalaParser % "1.1.2"
+  )
   case "2.12" =>   Seq(
     scalaModules %% scalaParser % scalaParserVersion
   )

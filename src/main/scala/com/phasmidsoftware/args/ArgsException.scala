@@ -8,6 +8,8 @@ abstract class ArgsException(s: String) extends Exception(s"Args exception: $s")
 
 case object AnonymousNotFoundException extends ArgsException("no anonymous arg found")
 
+case object EmptyArgsException extends ArgsException("Args is empty")
+
 case class NotFoundException(command: String) extends ArgsException(s"Arg: flag $command not found")
 
 case class AmbiguousNameException(name: String) extends ArgsException(s"$name ambiguous")

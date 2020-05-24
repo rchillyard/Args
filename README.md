@@ -13,7 +13,7 @@ By convention, options come first, and have single-character names, while operan
 An option may be required or optional;
 An option may be required to have a value or not.
 Options may be grouped together in one argument, with only one "-" preceding them.
-Options that take optional values may be part of a single String (without intervening space);
+Options that take optional values may be part of a single *String* (without intervening space);
 required arguments must be in separate arguments.
 More information about the syntax of command line arguments is to be found here: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html
 
@@ -49,7 +49,7 @@ The operands (positional arguments) which come at the end of the command line ha
 Optional arguments ("options") which come first have a name but may or may not have a value.
 
 The underlying type *X* is the type of the (optional) value.
-When an *Arg* results directly from parsing the command line, then *X* is always String.
+When an *Arg* results directly from parsing the command line, then *X* is always *String*.
 But a *map* method is defined which allows an *Arg[X]* to be transformed into an *Arg[Y]*.
     
 ## Parsing and Processing

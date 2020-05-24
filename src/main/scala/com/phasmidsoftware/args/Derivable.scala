@@ -19,3 +19,17 @@ trait Derivable[T] {
     */
   def deriveFrom[X](x: X): T
 }
+
+object Derivable {
+
+  implicit object DerivableStringInt$ extends Derivable[Int] {
+
+    def deriveFrom[X](x: X): Int = x match {
+      case x: String => x.toInt
+      case _ => throw NoDerivationAvailable(x.getClass, Int.getClass)
+    }
+  }
+
+}
+
+case class NoDerivationAvailable(xc: Class[_], yc: Class[_]) extends RuntimeException(s"no implicitly defined conversion from $xc to $yc")
