@@ -4,7 +4,6 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.12/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.12/args/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.11/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.11/args/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.10/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.10/args/)
-[![CircleCI](https://circleci.com/gh/rchillyard/Args.svg?style=svg)](https://circleci.com/gh/rchillyard/Args)
 ![GitHub Top Languages](https://img.shields.io/github/languages/top/rchillyard/Args)
 ![GitHub](https://img.shields.io/github/license/rchillyard/Args)
 ![GitHub last commit](https://img.shields.io/github/last-commit/rchillyard/Args)
