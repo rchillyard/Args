@@ -2,7 +2,7 @@ organization := "com.phasmidsoftware"
 
 name := "Args"
 
-version := "1.0.1"
+version := "1.0.2"
 
 scalaVersion := "2.13.6"
 
@@ -42,5 +42,3 @@ libraryDependencies ++= (scalaBinaryVersion.value match {
 libraryDependencies ++= Seq(
   scalaTestGroup %% scalaTestArt % scalaTestVersion.value % "test"
 )
-
-parallelExecution in Test := false

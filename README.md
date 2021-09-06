@@ -1,5 +1,6 @@
 # Args
 
+[![CircleCI](https://circleci.com/gh/rchillyard/Args.svg?style=shield)](https://circleci.com/gh/rchillyard/Args)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.13/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.13/args/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.12/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.12/args/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.11/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.11/args/)
