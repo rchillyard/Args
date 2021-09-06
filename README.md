@@ -1,5 +1,6 @@
 # Args
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/78b1a73d5903494c87d950f9e2f7addf)](https://www.codacy.com/gh/rchillyard/Args/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rchillyard/Args&amp;utm_campaign=Badge_Grade)
 [![CircleCI](https://circleci.com/gh/rchillyard/Args.svg?style=shield)](https://circleci.com/gh/rchillyard/Args)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.13/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.13/args/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware/args_2.12/badge.svg?color=blue)](https://maven-badges.herokuapp.com/maven-central/com.phasmidsoftware_2.12/args/)

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2018 Phasmid Software, Project Args.
  */
 
@@ -6,6 +6,7 @@ package com.phasmidsoftware.args
 
 import com.phasmidsoftware.util.MonadOps._
 
+import java.util.Objects
 import scala.util._
 import scala.util.parsing.combinator.RegexParsers
 
@@ -180,6 +181,8 @@ case class FlagWithValue(value: String, element: Element) extends Element {
     case FlagWithValue(x, y) => value == x && element == y
     case _ => false
   }
+
+  override def hashCode(): Int = Objects.hash(value, element)
 }
 
 /**
@@ -196,6 +199,8 @@ case class OptionalElement(element: Element) extends Element {
     case e: Element => e.isOptional && value == e.value
     case _ => false
   }
+
+  override def hashCode(): Int = Objects.hash(element.value)
 }
 
 class SynopsisParser extends RegexParsers {
