@@ -75,6 +75,20 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     result should matchPattern { case Failure(_) => }
   }
 
+  it should "compare properly" in {
+    val target = Arg(sY, s1)
+    target.compare(Arg(sY, s1)) shouldBe 0
+    target.compare(Arg(sX, s1)) shouldBe 1
+    target.compare(Arg("z", s1)) shouldBe -1
+    // CONSIDER is it correct that the value is not significant to compare?
+    target.compare(Arg(sY, "2")) shouldBe 0
+  }
+
+  it should "hasValue properly" in {
+    Arg(sY, s1).hasValue shouldBe true
+    Arg(sX).hasValue shouldBe false
+  }
+
   behavior of "Args"
 
   it should "work" in {
@@ -107,7 +121,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   it should "not implement getArg with ambiguous name" in {
     val x = Arg(sX, s1)
     val target = Args.create(x, x)
-    a [AmbiguousNameException] shouldBe thrownBy(target.getArg(sX))
+    a[AmbiguousNameException] shouldBe thrownBy(target.getArg(sX))
   }
 
   it should "implement options" in {

@@ -201,7 +201,7 @@ case class OptionalElement(element: Element) extends Element {
 class SynopsisParser extends RegexParsers {
   def parseSynopsis(w: String): Synopsis = parseAll(synopsis, w) match {
     case Success(es, _) => Synopsis(es)
-      case _ => throw new Exception(s"could not parse '$w' as a synopsis")
+    case _ => throw new Exception(s"could not parse '$w' as a synopsis")
   }
 
   def parseOptionalSynopsis(wo: Option[String]): Try[Synopsis] = liftTry(parseSynopsis)(liftOptionToTry(wo))
@@ -311,8 +311,7 @@ class SynopsisParser extends RegexParsers {
   val operandToken: Parser[String] = """[^-\[\]\s]+""".r
 
   private val openBracket = """\[""".r
-  private val closeBracket = """\]""".r
-
+  private val closeBracket = """]""".r
 }
 
 /**

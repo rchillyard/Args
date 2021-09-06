@@ -14,7 +14,7 @@ import scala.util._
   * Such an option has an (optional) name which is a String;
   * and an (optional) value, which is of type X.
   *
-  * @param name the optional name.
+  * @param name  the optional name.
   * @param value the optional value.
   * @tparam X the underlying type of the value.
   */
@@ -47,6 +47,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 
   /**
     * Method to get this Arg, if and only if its name matches the given String (w)
+    *
     * @param w the string to match.
     * @return either Some(this) or else None.
     */
@@ -57,6 +58,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 
   /**
     * Method to map this Arg into an Arg of underlying type Y
+    *
     * @param f a function to convert an X into a Y.
     * @tparam Y the underlying type of the result.
     * @return an Arg[Y]
@@ -96,6 +98,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 
   /**
     * Method to process this Arg, given a map of options and their corresponding functions.
+    *
     * @param fm a Map of String->function where function is of type Option[X]=>Unit
     * @return a Success[None] if there was a function defined for this Arg in the map fm AND if the function invocation was successful;
     *         otherwise a Failure[X]
@@ -141,6 +144,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 object Arg {
   /**
     * Method to create an Arg with name given as w and no value.
+    *
     * @param w the name of the arg
     * @return a valueless Arg[String] with name w.
     */
@@ -148,6 +152,7 @@ object Arg {
 
   /**
     * Method to create an Arg with name given as w and value v.
+    *
     * @param w the name of the arg.
     * @param v the value of the arg.
     * @return v valueless Arg[String] with name w and value v.
@@ -273,6 +278,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
 
   /**
     * Process this Args according to the map fm of String->function.
+    *
     * @param fm a Map of String->function where function is of type Option[X]=>Unit
     * @return a Try[Seq[X] resulting from iteration through each Arg and processing it.
     */
@@ -359,26 +365,13 @@ object Args {
   def create(args: Arg[String]*): Args[String] = apply(args)
 
   /**
-    * Method to create an empty Args[String]
-    *
-    * TEST this
-    *
-    * @return an empty Args[String]
-    */
-  def apply: Args[String] = make(Array[String]())
-
-  /**
     * Method to create an Args[String] from the command line arguments in a main program (or a sub-class of App).
-    *
-    * TEST this
     *
     * @param args a Seq[String].
     * @return an Args[String]
     */
   def make(args: Seq[String]): Args[String] = parse(args.toArray[String]).get
 
-//  private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Args[String] = {
-//    val so = (new SynopsisParser).parseSynopsis(wo)
   private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
     val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
@@ -399,7 +392,6 @@ object Args {
                       case FlagWithValue(_, OptionalElement(_)) => ws ++ Seq(PosixOptionString(c.toString), PosixOptionValue(tail.mkString("")))
                       case _ => inner2(ws :+ PosixOptionString(c.toString), tail)
                     }
-
                     processElement(e)
                   case _ => throw NoOptionInSynopsisException(c.toString)
                 }
@@ -426,5 +418,4 @@ object Args {
     val as = (for (p <- ps) yield processPosixArg(p)).flatten
     Try(Args(inner(Seq(), as))) flatMap (_ validate sy)
   }
-
 }

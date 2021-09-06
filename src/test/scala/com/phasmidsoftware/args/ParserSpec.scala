@@ -24,27 +24,27 @@ class ParserSpec extends flatspec.AnyFlatSpec with should.Matchers {
   val p = new SimpleArgParser
 
   it should "parse flag " + cmdF in {
-    p.parseAll(p.flag,cmdF) should matchPattern { case p.Success(p.Flag(`nameF`), _) => }
+    p.parseAll(p.flag, cmdF) should matchPattern { case p.Success(p.Flag(`nameF`), _) => }
   }
 
   it should "not parse flag -X" in {
-    p.parseAll(p.flag,"-X") should matchPattern { case p.Failure(_, _) => }
+    p.parseAll(p.flag, "-X") should matchPattern { case p.Failure(_, _) => }
   }
 
   it should "parse argument " + argFilename in {
-    p.parseAll(p.argument,argFilename) should matchPattern { case p.Success(p.Argument(`argFilename`), _) => }
+    p.parseAll(p.argument, argFilename) should matchPattern { case p.Success(p.Argument(`argFilename`), _) => }
   }
 
   it should "not parse argument -x" in {
-    p.parseAll(p.argument,"-x") should matchPattern { case p.Failure(_, _) => }
+    p.parseAll(p.argument, "-x") should matchPattern { case p.Failure(_, _) => }
   }
 
   it should "parse token " + cmdF in {
-    p.parseAll(p.token,cmdF) should matchPattern { case p.Success(p.Flag(`nameF`), _) => }
+    p.parseAll(p.token, cmdF) should matchPattern { case p.Success(p.Flag(`nameF`), _) => }
   }
 
   it should "parse token " + argFilename in {
-    p.parseAll(p.token,argFilename) should matchPattern { case p.Success(p.Argument(`argFilename`), _) => }
+    p.parseAll(p.token, argFilename) should matchPattern { case p.Success(p.Argument(`argFilename`), _) => }
   }
 
   it should "parse " + cmdF in {
