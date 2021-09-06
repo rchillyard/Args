@@ -4,6 +4,7 @@
 
 package com.phasmidsoftware.util
 
+import java.util.NoSuchElementException
 import scala.util._
 
 /**
@@ -31,7 +32,11 @@ object MonadOps {
 
   def liftTry[T, R](f: T => R): Try[T] => Try[R] = _ map f
 
-  def liftOptionToTry[T]: Option[T] => Try[T] = to => Try(to.get)
+  def liftOptionToTry[T]: Option[T] => Try[T] = {
+    case Some(t) => Success(t)
+    case None => Failure(new NoSuchElementException())
+  }
 
-  def prune[K, V](x: Seq[(K, Option[V])]): Map[K, V] = (for ((k, vo) <- x; if vo.isDefined) yield (k, vo.get)).toMap
+  // NOTE that the invocation of get is protected by ensuring that the value is defined.
+  def prune[K, V](x: Seq[(K, Option[V])]): Map[K, V] = (for ((k, vo) <- x; if vo.isDefined; v = vo.get) yield (k, v)).toMap
 }

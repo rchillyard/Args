@@ -367,8 +367,11 @@ object Args {
   /**
     * Method to create an Args[String] from the command line arguments in a main program (or a sub-class of App).
     *
+    * NOTE that we use get here on a Try. We might throw an exception, therefore.
+    *
     * @param args a Seq[String].
     * @return an Args[String]
+    * @throws Exception the result of invoking parse.
     */
   def make(args: Seq[String]): Args[String] = parse(args.toArray[String]).get
 
