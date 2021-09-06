@@ -1,14 +1,19 @@
 /*
- * Copyright (c) 2018. Phasmid Software
+ * Copyright (c) 2018 Phasmid Software, Project Args.
  */
 
 package com.phasmidsoftware.args
+
+import com.phasmidsoftware.util.MonadOps._
 
 import scala.util._
 import scala.util.parsing.combinator.RegexParsers
 
 /**
   * Parser of POSIX-style command lines.
+  *
+  * TODO there is a problem with testing equality of Elements (it's too liberal)
+  *
   */
 class Parser extends RegexParsers {
 
@@ -72,38 +77,79 @@ case class PosixOperand(value: String) extends PosixArg
   * This represents an element in the synopsis for a command line
   */
 trait Element extends Ordered[Element] {
+  /**
+    * Method to yield the value (name) of this Element
+    *
+    * @return the value/name
+    */
   def value: String
 
+  /**
+    * Method to determine if this Element is optional.
+    *
+    * @return true if this Element is optional.
+    */
   def isOptional: Boolean = false
 
+  /**
+    * Method to compare this Element with that Element.
+    *
+    * @param that the comparand.
+    * @return the result of invoking value compare that.value
+    */
   def compare(that: Element): Int = value compare that.value
+
+  /**
+    * Method to yield an optional String according as whether this Element is an operand.
+    *
+    * @return optionally the value of this Operand element (includes optional elements); None if this Element is not an operand.
+    */
+  def asOperand: Option[String] = this match {
+    case Operand(x) => Some(x)
+    case OptionalElement(Operand(x)) => Some(x)
+    case _ => None
+  }
 }
 
 case class Synopsis(es: Seq[Element]) {
   /**
-    * TEST
+    * Method to get an element by value (basically that's its name).
     *
-    * @param w the name of the element to find.
-    * @return an optional Element.
+    * TEST this method
+    *
+    * @param value the value to find
+    * @return an Option[Element]
     */
-  def getElement(w: String): Option[Element] = find(Some(w))
+  def getElement(value: String): Option[Element] = find(Some(value))
 
   /**
-    * Find an Element matching the optional name given as wo.
+    * Method to find an element by its value (basically that's its name)
     *
-    * @param wo an optional name to find.
-    * @return an optional Element.
+    * @param wo an optional value string
+    * @return an Option[Element]
     */
   def find(wo: Option[String]): Option[Element] = wo match {
     case Some(w) => es.find(e => e.value == w)
     case _ => None
   }
 
+  /**
+    * Method to distinguish between mandatory and optional elements.
+    *
+    * @return a tuple of Element sequences--first is the mandatory elements, second is the optional elements.
+    */
   def mandatoryAndOptionalElements: (Seq[Element], Seq[Element]) = es partition (!_.isOptional)
+
+  /**
+    * Method to get the operands (the non-option parameters) as a sequence of Strings
+    *
+    * @return Seq[String]
+    */
+  def operands: Seq[String] = es.flatMap(e => e.asOperand)
 }
 
 /**
-  * This represents an "Option" in the parlance of POSIX flag line interpretation (but formerly these options were known as flags)
+  * This represents an "Option" in the parlance of POSIX command line interpretation (but formerly these options were known as flags)
   *
   * @param value the (single-character) String representing the option (flag)
   */
@@ -115,6 +161,13 @@ case class Flag(value: String) extends Element
   * @param value the String
   */
 case class Value(value: String) extends Element
+
+/**
+  * This represents an operand in the parlance of POSIX.
+  *
+  * @param value the String
+  */
+case class Operand(value: String) extends Element
 
 /**
   * This represents an "Option" and its "Value"
@@ -146,23 +199,36 @@ case class OptionalElement(element: Element) extends Element {
 }
 
 class SynopsisParser extends RegexParsers {
-  def parseSynopsis(wo: Option[String]): Option[Synopsis] = wo match {
-    case Some(w) => parseAll(synopsis, w) match {
-      case Success(es, _) => Some(Synopsis(es))
+  def parseSynopsis(w: String): Synopsis = parseAll(synopsis, w) match {
+    case Success(es, _) => Synopsis(es)
       case _ => throw new Exception(s"could not parse '$w' as a synopsis")
-    }
-    case _ => None
   }
+
+  def parseOptionalSynopsis(wo: Option[String]): Try[Synopsis] = liftTry(parseSynopsis)(liftOptionToTry(wo))
 
   override def skipWhitespace: Boolean = false
 
   /**
-    * A "synopsis" of flag line options and their potential argument values.
+    * A "synopsis" of command-line options and their potential argument values.
     * It matches a dash ('-') followed by a list of optionalOrRequiredElement OR: an optional list of flagWithOrWithoutValue
     *
     * @return a Parser[Seq[Element]
     */
-  def synopsis: Parser[Seq[Element]] = "-" ~> (optionalElements | rep(optionalOrRequiredElement))
+  def synopsis: Parser[Seq[Element]] = rep(flagGroup) ~ opt(operands) ^^ { case x ~ oo => x.flatten ++ oo.toSeq.flatten }
+
+  def operands: Parser[Seq[Element]] = rep(opt(whiteSpace) ~> operand) ~ rep(opt(whiteSpace) ~> optionalOperand) ^^ { case x ~ y => x ++ y }
+
+  def optionalOperand: Parser[Element] = openBracket ~> operand <~ closeBracket ^^ (e => OptionalElement(e))
+
+  def operand: Parser[Element] = operandToken ^^ (o => Operand(o))
+
+  /**
+    * A "synopsis" of command-line options and their potential argument values.
+    * It matches a dash ('-') followed by a list of optionalOrRequiredElement OR: an optional list of flagWithOrWithoutValue
+    *
+    * @return a Parser[Seq[Element]
+    */
+  def flagGroup: Parser[Seq[Element]] = "-" ~> (optionalElements | rep(optionalOrRequiredElement))
 
   /**
     * An optionalOrRequiredElement matches EITHER: an optionalElement OR: a flagWithOrWithoutValue
@@ -221,6 +287,8 @@ class SynopsisParser extends RegexParsers {
   /**
     * A valueToken2 matches an uppercase letter followed by any number of non-space, non-bracket symbols
     *
+    * CONSIDER should not allow "-"
+    *
     * @return a Parser[String]
     */
   //noinspection Annotator
@@ -229,9 +297,18 @@ class SynopsisParser extends RegexParsers {
   /**
     * A valueToken1 matches at least one non-space, non-bracket symbol
     *
+    * CONSIDER should not allow "-"
+    *
     * @return a Parser[String]
     */
   val valueToken1: Parser[String] = """[^\[\]\s]+""".r
+
+  /**
+    * A operandToken matches at least one non-space, non-dash, non-bracket symbol
+    *
+    * @return a Parser[String]
+    */
+  val operandToken: Parser[String] = """[^-\[\]\s]+""".r
 
   private val openBracket = """\[""".r
   private val closeBracket = """\]""".r

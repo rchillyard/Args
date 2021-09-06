@@ -64,22 +64,22 @@ But a *map* method is defined which allows an *Arg[X]* to be transformed into an
 An example of parsing with validation is the following:
 
     val args = Array("-f", "argFilename", "operand")
-    val as: Args[String] = Args.parsePosix(args, Some("-f filename"))
+    val say: Try[Args[String]] = Args.parse(args, Some("-f filename"))
     
 This will create an *Args[String]* with two *Arg* elements: one corresponding to *f:filename* and one corresponding to *operand*.
 In this case, filename is a required argument to the f option, and the f option is itself required.
 Note that, currently at least, there is no way to validate that the required number of operands is present.
 
-There is another form of *parsePosix* which takes only the args parameter.
+There is another form of *parse* which takes only the args parameter.
 In this case, there will be no validation.
 
     val args = Array("-f", "argFilename", "operand")
-    val as: Args[String] = Args.parsePosix(args)
+    val say: Try[Args[String]] = Args.parse(args)
 
-There is another method for parsing which doesn't require POSIX-style but cannot be validated:
+There is another method for parsing which doesn't require POSIX-style and so cannot be validated:
 
     val args = Array("-f", "argFilename", "operand")
-    val as: Args[String] = Args.parse(args)
+    val say: Try[Args[String]] = Args.parseSimple(args)
 
 Once parsed and validated, an *Args* object can be processed by invoking the *process* method with a
 map of "name"->function pairs.
@@ -93,7 +93,19 @@ If any exceptions are thrown by the functions, the result will be a *Failure* an
 An alternative to invoking *process* is to split the *Args* up into options and operands using the *options* and *operands* methods:
 
     def options: Map[String, Option[X]]
+    def operands(s: Synopsis): Map[String, X]
+
+The result of invoking the *options* method is a map of *String->Option[]]X* pairs. Each String is the name of an option
+(according to the synopsis) and the *Option[X]* value is its actual value read from the command line (if there is an argument to the option).
+
+The result of invoking the *operands* method is a map of *String->X* pairs. Each String is the name of an operand
+(according to the synopsis) and the *X* value is its actual value read from the command line.
+
+For non-posix-style parsing, there is an additional signature of *operands*:
+
     def operands: Seq[X]
+    
+This result is simply the list of the operands as given on the command line.
 
 Please see the *ArgsSpec* class for more examples of invoking the various methods available.
 
@@ -106,8 +118,38 @@ The following strings are valid synopsis/command line pairs/tuples (separated by
     -[f filename] <--> -f README.md <--> 
     -[f[ filename]] <--> -f README.md <--> -fREADME.md <--> -f <--> 
     -xf filename <--> -xf README.md <--> -x -f README.md
-    -x operand1 [operand2] <--> -f 1 <--> <--> -f 1 2
+    -x operand1 [operand2] <--> -x 1 <--> <--> -x 1 2
+    operand1 [operand2] <--> 1 <--> <--> 1 2
     
 Square brackets make the option or its parameter optional.
 Options can be combined in the synopsis (and in the command line) but, in the command line,
 an option which is optional must be the last of any group.
+
+## Class Arg: method signatures
+
+    def isOption: Boolean
+    def hasValue: Boolean
+    def isOptional(s: Synopsis): Maybe
+    def byName(w: String): Option[Arg[X]]
+    def map[Y](f: X => Y): Arg[Y]
+    def asOption: Option[(String, Option[X])]
+    def operand: Option[X]
+    def toY[Y: Derivable]: Try[Y]
+    def process(fm: Map[String, Option[X] => Unit]): Try[Option[X]]
+    def process(c: String): Try[Option[X]]
+    def compare(that: Arg[X]): Int
+
+## Class Args: method signatures
+
+    def validate(w: String): Args[X]
+    def validate(sy: Try[Synopsis]): Args[X]
+    def validate(s: Synopsis): Boolean
+    def map[Y](f: X => Y): Args[Y]
+    def options: Map[String, Option[X]]
+    def operands: Seq[X]
+    def operands(s: Synopsis): Map[String, X]
+    def getArg(w: String): Option[Arg[X]]
+    def getArgValue[Y: Derivable](w: String): Option[Y]
+    def isDefined(w: String): Boolean
+    def process(fm: Map[String, Option[X] => Unit]): Try[Seq[X]]
+    def iterator: Iterator[Arg[X]]

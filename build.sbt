@@ -23,7 +23,7 @@ scalaTestVersion := (scalaBinaryVersion.value match {
   case "2.10" => "2.2.6"
   case "2.11" => "3.0.1"
   case "2.12" => "3.0.5"
-  case "2.13" => "3.1.2"
+  case "2.13" => "3.2.9"
 })
 
 libraryDependencies ++= (scalaBinaryVersion.value match {

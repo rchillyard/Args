@@ -1,5 +1,5 @@
 /*
- * Copyright (w) 2018. Phasmid Software
+ * Copyright (c) 2018 Phasmid Software, Project Args.
  */
 
 package com.phasmidsoftware.args
@@ -50,7 +50,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
       }
     }
     val target = Arg(sX, s1)
-    target.toY[Int] shouldBe 1
+    target.toY[Int] shouldBe Success(1)
   }
 
   it should "implement byName" in {
@@ -111,27 +111,42 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "implement options" in {
-    val target = Args.parse(Array("-"+sX, s1))
-    target.options shouldBe Map(sX -> Some(s1))
+    val target = Args.parseSimple(Array("-" + sX, s1))
+    target.get.options shouldBe Map(sX -> Some(s1))
   }
 
-  it should "implement operands" in {
-    val target = Args.parse(Array(s1))
-    target.operands shouldBe Seq(s1)
+  it should "implement operands (form 1)" in {
+    val target = Args.parseSimple(Array(s1))
+    target.get.operands shouldBe Seq(s1)
+  }
+
+  it should "implement operands (form 2) (1)" in {
+    val target = Args.parseSimple(Array(s1))
+    val p = new SynopsisParser
+    val s = p.parseSynopsis("first [second]")
+    target.get.operands(s) shouldBe Map("first" -> s1)
+  }
+
+  it should "implement operands (form 2) (2)" in {
+    val target = Args.parseSimple(Array(s1, sX))
+    val p = new SynopsisParser
+    val s = p.parseSynopsis("first [second]")
+    target.get.operands(s) shouldBe Map("first" -> s1, "second" -> sX)
   }
 
   it should "implement toList" in {
     val sa = Args.parse(Array("-f", "argFilename", "3.1415927"))
-    sa.toList shouldBe List(Arg(Some("f"), Some("argFilename")), Arg(None, Some("3.1415927")))
+    sa.isSuccess shouldBe true
+    sa.get.to(List) shouldBe List(Arg(Some("f"), Some("argFilename")), Arg(None, Some("3.1415927")))
   }
 
   it should "do implement matchAndShift 1" in {
-    val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    val sa: Args[String] = Args.make(Array("-f", "argFilename", "3.1415927"))
     a[MatchError] shouldBe thrownBy(sa.matchAndShift { case Arg(None, None) => })
   }
 
   it should "do implement matchAndShift 2" in {
-    val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    val sa: Args[String] = Args.make(Array("-f", "argFilename", "3.1415927"))
     println(sa.matchAndShift { case Arg(Some(name), Some(file)) => println(s"$name $file") })
     sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => println("f argFilename") } shouldBe Args(List(Arg(None, Some("3.1415927"))))
     val z: Args[Double] = sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.map(_.toDouble)
@@ -139,7 +154,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "do implement matchAndShiftOrElse" in {
-    val sa: Args[String] = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    val sa: Args[String] = Args.make(Array("-f", "argFilename", "3.1415927"))
     sa.matchAndShiftOrElse { case Arg(None, None) => }(Args.empty) shouldBe Args.empty
   }
 
@@ -155,13 +170,27 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   it should "parse " + cmdF + " " + argFilename in {
     val args = Array(cmdF, argFilename)
-    val as = Args.parse(args)
-    as.xas.length shouldBe 1
-    as.xas.head shouldBe Arg(Some(nameF), Some(argFilename))
+    val say = Args.parseSimple(args)
+    val sa = say.get
+    sa.xas.length shouldBe 1
+    sa.xas.head shouldBe Arg(Some(nameF), Some(argFilename))
+  }
+
+  it should "parseSimple 1 2 3" in {
+    val say = Args.parseSimple(Array("1", "2", "3"))
+    val sa = say.get
+    sa.xas.length shouldBe 3
+    sa.xas.head shouldBe Arg(None, Some("1"))
+    val xa: Args[Int] = sa.map(_.toInt)
+    xa shouldBe Args(Seq(Arg(None, Some(1)), Arg(None, Some(2)), Arg(None, Some(3))))
+    val processor = Map[String, Option[Int] => Unit]()
+    xa.process(processor) should matchPattern { case Success(Seq(1, 2, 3)) => }
   }
 
   it should "parse 1 2 3" in {
-    val sa = Args.parse(Array("1", "2", "3"))
+    val say = Args.parse(Array("1", "2", "3"))
+    say should matchPattern { case Success(_) => }
+    val sa = say.get
     sa.xas.length shouldBe 3
     sa.xas.head shouldBe Arg(None, Some("1"))
     val xa: Args[Int] = sa.map(_.toInt)
@@ -170,26 +199,20 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     xa.process(processor) should matchPattern { case Success(Seq(1, 2, 3)) => }
   }
 
-  it should "parsePosix 1 2 3" in {
-    val sa = Args.parse(Array("1", "2", "3"))
-    sa.xas.length shouldBe 3
-    sa.xas.head shouldBe Arg(None, Some("1"))
-    val xa: Args[Int] = sa.map(_.toInt)
-    xa shouldBe Args(Seq(Arg(None, Some(1)), Arg(None, Some(2)), Arg(None, Some(3))))
-    val processor = Map[String, Option[Int] => Unit]()
-    xa.process(processor) should matchPattern { case Success(Seq(1, 2, 3)) => }
-  }
-
-  it should """parsePosix "-xf argFilename 3.1415927"""" in {
-    val sa = Args.parsePosix(Array("-xf", "argFilename", "3.1415927"))
+  it should """parse "-xf argFilename 3.1415927"""" in {
+    val say = Args.parse(Array("-xf", "argFilename", "3.1415927"))
+    say should matchPattern { case Success(_) => }
+    val sa = say.get
     sa.xas.length shouldBe 3
     sa.xas.head shouldBe Arg(Some("x"), None)
     sa.xas.tail.head shouldBe Arg(Some("f"), Some("argFilename"))
     sa.xas.last shouldBe Arg(None, Some("3.1415927"))
   }
 
-  it should """parsePosix "-xf argFilename -p 3.1415927"""" in {
-    val sa = Args.parsePosix(Array("-xf", "argFilename", "-p", "3.1415927"))
+  it should """parse "-xf argFilename -p 3.1415927"""" in {
+    val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"))
+    say should matchPattern { case Success(_) => }
+    val sa = say.get
     sa.xas.length shouldBe 3
     sa.xas.head shouldBe Arg(Some("x"), None)
     sa.xas.tail.head shouldBe Arg(Some("f"), Some("argFilename"))
@@ -224,135 +247,45 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "as" in {
-    val sa = Args.parse(Array("1", "2", "3"))
-    val ia: Args[Int] = sa.as
+    val say = Args.parse(Array("1", "2", "3"))
+    say.isSuccess shouldBe true
+    val ia: Args[Int] = say.get.as
     ia.operands shouldBe Seq(1, 2, 3)
   }
 
   behavior of "Args validation"
   it should "parse " + cmdF + " " + argFilename in {
     val args = Array(cmdF, argFilename, "positionalArg")
-    val as: Args[String] = Args.parsePosix(args, Some(cmdF + " " + "filename"))
-    as should matchPattern { case Args(_) => }
+    val asy = Args.parse(args, Some(cmdF + " " + "filename"))
+    asy should matchPattern { case Success(Args(_)) => }
   }
 
   it should "parse " + cmdF + argFilename + " where filename is optional (1)" in {
     val args = Array(cmdF, argFilename, "3.1415927")
-    val as: Args[String] = Args.parsePosix(args, Some(cmdF + "[ filename" + "]"))
-    as should matchPattern { case Args(_) => }
+    val asy = Args.parse(args, Some(cmdF + "[ filename" + "]"))
+    asy should matchPattern { case Success(Args(_)) => }
   }
 
   it should "parse " + cmdF + argFilename + " where filename is optional (2)" in {
     val args = Array(cmdF + argFilename, "positionalArg")
-    val as: Args[String] = Args.parsePosix(args, Some(cmdF + "[ filename" + "]"))
-    as should matchPattern { case Args(_) => }
+    val asy = Args.parse(args, Some(cmdF + "[ filename" + "]"))
+    asy should matchPattern { case Success(Args(_)) => }
   }
 
   it should "parse " + cmdF + " " + argFilename + "where -xf filename required" in {
-    a[ValidationException[String]] shouldBe thrownBy(Args.parsePosix(Array(cmdF, argFilename), Some("-xf filename")))
+    a[ValidationException[String]] shouldBe thrownBy(Args.parse(Array(cmdF, argFilename), Some("-xf filename")).get)
   }
 
   it should """implement validate(String)""" in {
-    val sa = Args.parsePosix(Array("-xf", "argFilename", "-p", "3.1415927"))
-    sa.validate("-x[f filename][p number]") shouldBe sa
-    // TODO why does the following not work?
-    //    sa.validate("-xf filename -p number") shouldBe sa
+    val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"))
+    say should matchPattern { case Success(_) => }
+    val sa = say.get
+    say.get.validate("-x[f filename][p number]") shouldBe Success(sa)
+    say.get.validate("-xf filename -p number") shouldBe Success(sa)
   }
 
   it should "validate -x[f[ filename]] as a synopsis for -xfargFilename" in {
-    Args.parsePosix(Array("-xfargFilename"), Some("-x[f[ filename]]")) shouldBe Args.create(Arg("x"), Arg("f", "argFilename"))
-  }
-
-  it should "$greater" in {
-
-  }
-
-  it should "compare" in {
-
-  }
-
-  it should "isOption" in {
-
-  }
-
-  it should "toString" in {
-
-  }
-
-  it should "compareTo" in {
-
-  }
-
-  it should "copy" in {
-
-  }
-
-  it should "$less" in {
-
-  }
-
-  it should "productPrefix" in {
-
-  }
-
-  it should "process" in {
-
-  }
-
-  it should "isOptional" in {
-
-  }
-
-  it should "operand" in {
-
-  }
-
-  it should "productIterator" in {
-
-  }
-
-  it should "byName" in {
-
-  }
-
-  it should "map" in {
-
-  }
-
-  it should "$less$eq" in {
-
-  }
-
-  it should "asOption" in {
-
-  }
-
-  it should "value" in {
-
-  }
-
-  it should "hasValue" in {
-
-  }
-
-  it should "toY" in {
-
-  }
-
-  it should "name" in {
-
-  }
-
-  it should "$greater$eq" in {
-
-  }
-
-  it should "apply" in {
-
-  }
-
-  it should "unapply" in {
-
+    Args.parse(Array("-xfargFilename"), Some("-x[f[ filename]]")) shouldBe Success(Args.create(Arg("x"), Arg("f", "argFilename")))
   }
 
 }
