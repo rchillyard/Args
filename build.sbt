@@ -4,9 +4,9 @@ name := "Args"
 
 version := "1.0.1"
 
-scalaVersion := "2.13.2"
+scalaVersion := "2.13.6"
 
-crossScalaVersions := Seq("2.10.7","2.11.12","2.12.11","2.13.2")
+crossScalaVersions := Seq("2.10.7","2.11.12","2.12.11","2.13.6")
 
 scalacOptions += "-deprecation"
 
