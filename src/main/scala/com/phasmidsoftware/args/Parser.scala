@@ -80,8 +80,20 @@ trait Element extends Ordered[Element] {
 }
 
 case class Synopsis(es: Seq[Element]) {
+  /**
+    * TEST
+    *
+    * @param w the name of the element to find.
+    * @return an optional Element.
+    */
   def getElement(w: String): Option[Element] = find(Some(w))
 
+  /**
+    * Find an Element matching the optional name given as wo.
+    *
+    * @param wo an optional name to find.
+    * @return an optional Element.
+    */
   def find(wo: Option[String]): Option[Element] = wo match {
     case Some(w) => es.find(e => e.value == w)
     case _ => None
@@ -203,6 +215,7 @@ class SynopsisParser extends RegexParsers {
     *
     * @return a Parser[Flag]
     */
+  //noinspection Annotator
   def flag: Parser[Flag] = """[\p{Ll}\d]""".r ^^ (t => Flag(t))
 
   /**
@@ -210,6 +223,7 @@ class SynopsisParser extends RegexParsers {
     *
     * @return a Parser[String]
     */
+  //noinspection Annotator
   val valueToken2: Parser[String] = """\p{Lu}[^\[\]\s]*""".r
 
   /**
@@ -240,10 +254,13 @@ class SimpleArgParser extends RegexParsers {
   /**
     * Case class to represent a "flag", a.k.a. option.
     *
+    * TEST
+    *
     * @param s the single-character string which is the name of this flag
     */
   case class Flag(s: String) extends Token
 
+  // TEST
   case class Argument(s: String) extends Token
 
   def token: Parser[Token] = flag | argument
@@ -255,9 +272,16 @@ class SimpleArgParser extends RegexParsers {
     */
   def flag: Parser[Flag] = "-" ~> cmdR ^^ (s => Flag(s))
 
+  /**
+    * An argument can be made up of alphabetic and numeric characters, including "." but not "-"
+    *
+    * TODO should make this more flexible.
+    *
+    * @return a Parser[Argument]
+    */
   def argument: Parser[Argument] = argR ^^ (s => Argument(s))
 
   private val cmdR = """[a-z]+""".r
-  private val argR = """\w+""".r
+  private val argR = """[\w.]+""".r
 }
 
