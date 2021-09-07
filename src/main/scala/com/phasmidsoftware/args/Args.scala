@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2018 Phasmid Software, Project Args.
  */
 
@@ -199,7 +199,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     // NOTE: the following will throw an exception if any Arg is invalid
     val (_, mandatory) = xas.filter(_.isOption).partition(_.isOptional(s).toBoolean(false))
     if (m.size == mandatory.size) {
-      val bs = for (z <- m.sorted zip mandatory.sorted) yield (z._1.value compare z._2.name.get) == 0
+      val bs = for (z <- m.sorted zip mandatory.sorted; name <- z._2.name) yield (z._1.value compare name) == 0
       bs.forall(_ == true)
     }
     else
