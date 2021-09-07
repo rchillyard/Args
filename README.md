@@ -34,21 +34,21 @@ There is additional support for non-POSIX styles of command line arguments,
 but in this case, there is no means of validating the command line.
 
 Whether your application extends the *App* interface, or creates its own *main* program, the command-line arguments
-will be available as Strings in an *Array[String]* usually called *args*. 
+will be available as Strings in an *Array\[String\]* usually called *args*. 
 
 
 ## Classes
-The main class used is a case class: *Args[X]* which is defined thus:
+The main class used is a case class: *Args\[X\]* which is defined thus:
 
-    case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
+    case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]\] {
         // ...
     }
 
-*Args* defines a sequence of *Arg[X]* elements.
+*Args* defines a sequence of *Arg\[X\]* elements.
 The order follows the order as parsed, but the order of the options (but not the operands)
 is immaterial.
 
-The class *Arg[X]* is defined thus:
+The class *Arg\[X\]* is defined thus:
 
     case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]] {
         // ...
@@ -60,7 +60,7 @@ Optional arguments ("options") which come first have a name but may or may not h
 
 The underlying type *X* is the type of the (optional) value.
 When an *Arg* results directly from parsing the command line, then *X* is always *String*.
-But a *map* method is defined which allows an *Arg[X]* to be transformed into an *Arg[Y]*.
+But a *map* method is defined which allows an *Arg\[X\]* to be transformed into an *Arg[Y\]*.
     
 ## Parsing and Processing
 An example of parsing with validation is the following:
@@ -68,7 +68,7 @@ An example of parsing with validation is the following:
     val args = Array("-f", "argFilename", "operand")
     val say: Try[Args[String]] = Args.parse(args, Some("-f filename"))
     
-This will create an *Args[String]* with two *Arg* elements: one corresponding to *f:filename* and one corresponding to *operand*.
+This will create an *Args\[String\]* with two *Arg* elements: one corresponding to *f:filename* and one corresponding to *operand*.
 In this case, filename is a required argument to the f option, and the f option is itself required.
 Note that, currently at least, there is no way to validate that the required number of operands is present.
 
@@ -97,8 +97,8 @@ An alternative to invoking *process* is to split the *Args* up into options and 
     def options: Map[String, Option[X]]
     def operands(s: Synopsis): Map[String, X]
 
-The result of invoking the *options* method is a map of *String->Option[]]X* pairs. Each String is the name of an option
-(according to the synopsis) and the *Option[X]* value is its actual value read from the command line (if there is an argument to the option).
+The result of invoking the *options* method is a map of *String->Option\[X\]* pairs. Each String is the name of an option
+(according to the synopsis) and the *Option\[X]* value is its actual value read from the command line (if there is an argument to the option).
 
 The result of invoking the *operands* method is a map of *String->X* pairs. Each String is the name of an operand
 (according to the synopsis) and the *X* value is its actual value read from the command line.
@@ -141,12 +141,18 @@ an option which is optional must be the last of any group.
     def process(c: String): Try[Option[X]]
     def compare(that: Arg[X]): Int
 
+## Object Arg: method signatures
+
+    def apply(w: String): Arg[String]
+    def apply(w: String, v: String): Arg[String]
+
 ## Class Args: method signatures
 
-    def validate(w: String): Args[X]
+    def validate(w: String): Try[Args[X]]
     def validate(sy: Try[Synopsis]): Args[X]
     def validate(s: Synopsis): Boolean
     def map[Y](f: X => Y): Args[Y]
+    def as[Y: Derivable]: Args[Y]
     def options: Map[String, Option[X]]
     def operands: Seq[X]
     def operands(s: Synopsis): Map[String, X]
@@ -155,3 +161,26 @@ an option which is optional must be the last of any group.
     def isDefined(w: String): Boolean
     def process(fm: Map[String, Option[X] => Unit]): Try[Seq[X]]
     def iterator: Iterator[Arg[X]]
+    def matchAndShift(f: PartialFunction[Arg[X], Unit]): Args[X]
+    def matchAndShiftOrElse(f: PartialFunction[Arg[X], Unit])(default: => Args[X]): Args[X]
+
+## Object Args:
+
+    def parseSimple(args: Array[String]): Try[Args[String]]
+    def parse(args: Array[String], synopsis: Option[String] = None): Try[Args[String]]
+    def create(args: Arg[String]*): Args[String]
+    def make(args: Seq[String]): Args[String]
+
+## Trait Derivable:
+
+*Derivable\[T\]* is a type class which defines the following method:
+
+    def deriveFrom[X](x: X): T
+
+There is one implicitly instance of *Derivable* of type *Derivable\[Int\]* 
+with method defined for a *String* parameter.
+
+## Versions
+
+The current version is 1.0.2
+Differences from V1.0.1: more usage of _Try_ (mostly internal).
