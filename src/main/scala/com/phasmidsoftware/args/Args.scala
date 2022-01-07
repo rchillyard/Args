@@ -66,6 +66,18 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   def map[Y](f: X => Y): Arg[Y] = Arg(name, value map f)
 
   /**
+    * Method to flatMap this Arg into an Arg of underlying type Y
+    *
+    * @param f a function to convert an X into a Y.
+    * @tparam Y the underlying type of the result.
+    * @return an Arg[Y]
+    */
+  def flatMap[Y](f: X => Arg[Y]): Arg[Y] = value.map(f) match {
+    case Some(a) => a
+    case _ => Arg[Y](name, None)
+  }
+
+  /**
     * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether it's an "option".
     *
     * @return Some[(String, Option[X]) if name is not None otherwise None.
@@ -158,9 +170,44 @@ object Arg {
     * @return v valueless Arg[String] with name w and value v.
     */
   def apply(w: String, v: String): Arg[String] = Arg(Some(w), Some(v))
+  //
+  //  def multiply(x: Int, y: Int): Int = x * y
+  //  val identity: Int => Int = 1 * _
+  //
+  //  val string: Any => String = _.toString
+  //
+  //  val f = println _
+  //
+  //  val z = new (Int => String) { def apply(x: Int): String = x.toString }
+  //
+  //  f(string(identity(42)))
 }
 
 case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
+
+  /**
+    * Method to append an Arg[X] to this Args[X].
+    *
+    * @param xa the Arg[X] to be appended.
+    * @return a new Args[X].
+    */
+  def :+(xa: Arg[X]): Args[X] = Args(xas :+ xa)
+
+  /**
+    * Method to prepend an Arg[X] to this Args[X].
+    *
+    * @param xa the Arg[X] to be prepended.
+    * @return a new Args[X].
+    */
+  def +:(xa: Arg[X]): Args[X] = Args(xa +: xas)
+
+  /**
+    * Method to concatenate this Args[X] with xq.
+    *
+    * @param xq an Args[X].
+    * @return a new Args[X].
+    */
+  def ++(xq: Args[X]): Args[X] = Args(xas ++ xq.xas)
 
   /**
     * Method to validate this Args according to the POSIX-style synopsis w, expressed as a String.
@@ -207,13 +254,34 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
   }
 
   /**
-    * Apply the given function f to each Arg of this Args
+    * Apply the given map(f) to each Arg of this Args
     *
     * @param f a function of type X => Y
     * @tparam Y the result type of the function f
     * @return an Args[Y] object
     */
-  def map[Y](f: X => Y): Args[Y] = Args(for (xa <- xas) yield xa.map(f))
+  def mapMap[Y](f: X => Y): Args[Y] =
+    Args(for (xa <- xas) yield xa.map(f))
+
+  /**
+    * Apply the given function f to each Arg of this Args
+    *
+    * @param f a function of type Arg[X] => Arg[Y]
+    * @tparam Y the result type of the function f
+    * @return an Args[Y] object
+    */
+  def map[Y](f: Arg[X] => Arg[Y]): Args[Y] =
+    Args(for (xa <- xas) yield f(xa))
+
+  /**
+    * Apply the given function f to each Arg of this Args
+    *
+    * @param f a function of type X => Args[Y]
+    * @tparam Y the result type of the function f
+    * @return an Args[Y] object
+    */
+  def flatMap[Y](f: Arg[X] => Args[Y]): Args[Y] =
+    (for (xa <- xas) yield f(xa)).foldLeft(Args[Y](Seq()))((aa, a) => aa ++ a)
 
   /**
     * Convert this Args[X] to an Args[Y].
@@ -222,7 +290,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
     * @return an Args[Y].
     */
-  def as[Y: Derivable]: Args[Y] = map[Y](implicitly[Derivable[Y]].deriveFrom[X](_))
+  def as[Y: Derivable]: Args[Y] = mapMap[Y](implicitly[Derivable[Y]].deriveFrom[X](_))
 
   /**
     * Get the options (i.e. args with names) as map of names to (optional) values
@@ -287,6 +355,20 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
       case Success(xos) => Success(xos.flatten)
       case Failure(x) => Failure(x)
     }
+
+  //  /**
+  //    * Process this Args according to the map fm of String->function.
+  //    *
+  //    * @param fm a Map of String->function where function is of type Option[X]=>Unit
+  //    * @return a Try[Seq[X] resulting from iteration through each Arg and processing it.
+  //    */
+  //  def processAsync(fm: Map[String, Option[X] => Unit]): Future[Seq[X]] = {
+  //    import scala.concurrent.ExecutionContext.Implicits.global
+  //    val xoyfs: Seq[Future[Try[Option[X]]]] = for (xa <- xas) yield for (x <- Future(xa.process(fm))) yield x
+  //    val xoysf: Future[Seq[Try[Option[X]]]] = Future.sequence(xoyfs)
+  //    val xosyf: Future[Try[Seq[Option[X]]]] = for (xoys <- xoysf) yield sequence(xoys)
+  //    xosyf
+  //  }
 
   def iterator: Iterator[Arg[X]] = xas.iterator
 

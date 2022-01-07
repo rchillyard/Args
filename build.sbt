@@ -2,9 +2,9 @@ organization := "com.phasmidsoftware"
 
 name := "Args"
 
-version := "1.0.2"
+version := "1.0.3-SNAPSHOT"
 
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.7"
 
 crossScalaVersions := Seq("2.10.7","2.11.12","2.12.11","2.13.6")
 
@@ -16,7 +16,7 @@ val scalaParser = "scala-parser-combinators"
 val scalaTestGroup = "org.scalatest"
 val scalaTestArt = "scalatest"
 
-lazy val scalaParserVersion = "1.0.6"
+lazy val scalaParserVersion = "2.1.0"
 lazy val scalaTestVersion = SettingKey[String]("scalaTestVersion")
 
 scalaTestVersion := (scalaBinaryVersion.value match {
@@ -28,7 +28,7 @@ scalaTestVersion := (scalaBinaryVersion.value match {
 
 libraryDependencies ++= (scalaBinaryVersion.value match {
   case "2.13" =>   Seq(
-    scalaModules %% scalaParser % "1.1.2"
+    scalaModules %% scalaParser % "2.0.0"
   )
   case "2.12" =>   Seq(
     scalaModules %% scalaParser % scalaParserVersion
