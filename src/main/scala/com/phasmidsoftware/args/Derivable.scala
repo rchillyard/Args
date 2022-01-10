@@ -18,6 +18,15 @@ trait Derivable[T] {
     * @return a T
     */
   def deriveFrom[X](x: X): T
+
+  /**
+    * Method to convert an X to an Option[T].
+    *
+    * @param x the X value
+    * @tparam X the input type
+    * @return an Option[T]
+    */
+  def deriveFromOpt[X](x: X): Option[T]
 }
 
 object Derivable {
@@ -26,6 +35,11 @@ object Derivable {
 
     def deriveFrom[X](x: X): Int = x match {
       case x: String => x.toInt
+      case _ => throw NoDerivationAvailable(x.getClass, Int.getClass)
+    }
+
+    def deriveFromOpt[X](x: X): Option[Int] = x match {
+      case x: String => x.toIntOption
       case _ => throw NoDerivationAvailable(x.getClass, Int.getClass)
     }
   }

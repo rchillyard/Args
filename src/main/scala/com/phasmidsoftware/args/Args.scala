@@ -66,6 +66,15 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   def map[Y](f: X => Y): Arg[Y] = Arg(name, value map f)
 
   /**
+    * Method to map this Arg into an Arg of underlying type Y but where the function given is X => Option[Y]
+    *
+    * @param f a function to convert an X into an Option[Y].
+    * @tparam Y the underlying type of the result.
+    * @return an Arg[Y]
+    */
+  def mapMap[Y](f: X => Option[Y]): Arg[Y] = Arg(name, value flatMap f)
+
+  /**
     * Method to flatMap this Arg into an Arg of underlying type Y
     *
     * @param f a function to convert an X into a Y.
@@ -78,11 +87,20 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   }
 
   /**
+    * Convert this Arg[X] to an Arg[Y].
+    * In practice, this method invokes map with the function deriveFrom invoked on the Derivable[Y] evidence.
+    *
+    * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
+    * @return an Args[Y].
+    */
+  def as[Y: Derivable]: Arg[Y] = mapMap[Y](implicitly[Derivable[Y]].deriveFromOpt[X](_))
+
+  /**
     * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether it's an "option".
     *
     * @return Some[(String, Option[X]) if name is not None otherwise None.
     */
-  def asOption: Option[(String, Option[X])] = name match {
+  lazy val asOption: Option[(String, Option[X])] = name match {
     case Some(w) => Some(w, value)
     case _ => None
   }
@@ -92,7 +110,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     *
     * @return Some[X] if name is None otherwise None.
     */
-  def operand: Option[X] = name match {
+  lazy val operand: Option[X] = name match {
     case None => value
     case _ => None
   }
@@ -334,7 +352,15 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @tparam Y the result type
     * @return an option value of Y (None if toY yields a Failure)
     */
-  def getArgValue[Y: Derivable](w: String): Option[Y] = getArg(w) flatMap (xa => xa.toY.toOption)
+  def getArgValueAsY[Y: Derivable](w: String): Option[Y] = getArg(w) flatMap (xa => xa.toY.toOption)
+
+  /**
+    * Get the arg value where the name matches the given string and where the resulting type is Y
+    *
+    * @param w the string to match
+    * @return an option value of Y (None if there is no value).
+    */
+  def getArgValue(w: String): Option[X] = getArg(w) flatMap (xa => xa.value)
 
   /**
     * Method to determine if the argument identified by w is defined.
@@ -457,7 +483,7 @@ object Args {
     */
   def make(args: Seq[String]): Args[String] = parse(args.toArray[String]).get
 
-  private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
+  private def doParse(ps: => Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
     val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
     def processPosixArg(p: PosixArg): Seq[PosixArg] = p match {
@@ -500,7 +526,7 @@ object Args {
       case _ => throw ParseException(s"inner: failed to match $w")
     }
 
-    val as = (for (p <- ps) yield processPosixArg(p)).flatten
+    lazy val as = (for (p <- ps) yield processPosixArg(p)).flatten
     Try(Args(inner(Seq(), as))) flatMap (_ validate sy)
   }
 }

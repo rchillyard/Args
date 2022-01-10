@@ -47,14 +47,14 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     a[java.lang.NumberFormatException] shouldBe thrownBy(target.map(_.toInt))
   }
 
-  it should "implement toY" in {
-    implicit object DerivableStringInt$ extends Derivable[Int] {
+  it should "implement as[Int]" in {
+    import Derivable.DerivableStringInt$
+    val target = Arg(sX, s1)
+    target.as[Int] shouldBe Arg(Some("x"), Some(1))
+  }
 
-      def deriveFrom[X](x: X): Int = x match {
-        case x: String => x.toInt
-        case _ => throw NotImplemented(s"deriveFrom: $x")
-      }
-    }
+  it should "implement toY" in {
+    import Derivable.DerivableStringInt$
     val target = Arg(sX, s1)
     target.toY[Int] shouldBe Success(1)
   }
@@ -180,6 +180,11 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     target.get.operands(s) shouldBe Map("first" -> s1, "second" -> sX)
   }
 
+  it should "fail on empty array" in {
+    val sa = Args.parse(Array[String]())
+    sa.isSuccess shouldBe false
+  }
+
   it should "implement toList" in {
     val sa = Args.parse(Array("-f", "argFilename", "3.1415927"))
     sa.isSuccess shouldBe true
@@ -271,15 +276,15 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should """implement getArgValue("f")""" in {
-    implicit object DerivableStringString$ extends Derivable[String] {
-
-      def deriveFrom[X](x: X): String = x match {
-        case x: String => x
-        case _ => throw NotImplemented(s"deriveFrom: $x")
-      }
-    }
     val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("f"), Some("argFilename")), Arg(None, Some("3.1415927"))))
-    sa.getArgValue("f") shouldBe Some("argFilename")
+    val value: Option[String] = sa.getArgValue("f")
+    value shouldBe Some("argFilename")
+  }
+
+  it should """implement getArgValueAs("f")""" in {
+    val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("n"), Some("1")), Arg(None, Some("3.1415927"))))
+    val value: Option[Int] = sa.getArgValueAsY[Int]("n")
+    value shouldBe Some(1)
   }
 
   it should """implement process for complex Args""" in {
