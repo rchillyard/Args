@@ -352,7 +352,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @tparam Y the result type
     * @return an option value of Y (None if toY yields a Failure)
     */
-  def getArgValueAsY[Y: Derivable](w: String): Option[Y] = getArg(w) flatMap (xa => xa.toY.toOption)
+  def getArgValueAs[Y: Derivable](w: String): Option[Y] = getArg(w) flatMap (xa => xa.toY.toOption)
 
   /**
     * Get the arg value where the name matches the given string and where the resulting type is Y

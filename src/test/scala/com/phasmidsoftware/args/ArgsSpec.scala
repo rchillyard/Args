@@ -7,6 +7,8 @@ package com.phasmidsoftware.args
 import org.scalatest.flatspec
 import org.scalatest.matchers.should
 
+import java.io.File
+import java.net.URL
 import scala.util.{Failure, Success}
 
 class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
@@ -48,13 +50,36 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "implement as[Int]" in {
-    import Derivable.DerivableStringInt$
     val target = Arg(sX, s1)
     target.as[Int] shouldBe Arg(Some("x"), Some(1))
   }
 
+  it should "implement as[Boolean]" in {
+    val target = Arg(sX, "true")
+    target.as[Boolean] shouldBe Arg(Some("x"), Some(true))
+  }
+
+  it should "implement as[Double]" in {
+    val target = Arg(sX, "1.0")
+    target.as[Double] shouldBe Arg(Some("x"), Some(1.0))
+  }
+
+  it should "implement as[File]" in {
+    val target = Arg(sX, "build.sbt")
+    target.as[File] shouldBe Arg(Some("x"), Some(new File("build.sbt")))
+  }
+
+  it should "implement as[URL]" in {
+    val target = Arg(sX, "https://www.google.com")
+    target.as[URL] shouldBe Arg(Some("x"), Some(new URL("https://www.google.com")))
+  }
+
+  it should "implement as[URL] malformed" in {
+    val target = Arg(sX, "://www.google.com")
+    target.as[URL] shouldBe Arg(Some("x"), None)
+  }
+
   it should "implement toY" in {
-    import Derivable.DerivableStringInt$
     val target = Arg(sX, s1)
     target.toY[Int] shouldBe Success(1)
   }
@@ -283,7 +308,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   it should """implement getArgValueAs("f")""" in {
     val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("n"), Some("1")), Arg(None, Some("3.1415927"))))
-    val value: Option[Int] = sa.getArgValueAsY[Int]("n")
+    val value: Option[Int] = sa.getArgValueAs[Int]("n")
     value shouldBe Some(1)
   }
 
