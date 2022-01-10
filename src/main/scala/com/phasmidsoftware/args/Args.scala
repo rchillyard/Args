@@ -315,14 +315,14 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     *
     * @return the options as a map
     */
-  def options: Map[String, Option[X]] = (for (xa <- xas) yield xa.asOption).flatten.toMap
+  lazy val options: Map[String, Option[X]] = (for (xa <- xas) yield xa.asOption).flatten.toMap
 
   /**
     * Get the operands or positional arguments (i.e. args without names) as a sequence of X values.
     *
     * @return a sequence of X values.
     */
-  def operands: Seq[X] = (for (xa <- xas) yield xa.operand).flatten
+  lazy val operands: Seq[X] = (for (xa <- xas) yield xa.operand).flatten
 
   /**
     * Get the operands (positional arguments) as a map of String->X pairs.
@@ -397,6 +397,32 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
   //  }
 
   def iterator: Iterator[Arg[X]] = xas.iterator
+
+  override def size: Int = xas.size
+
+  override def head: Arg[X] = xas.head
+
+  override def headOption: Option[Arg[X]] = xas.headOption
+
+  override def last: Arg[X] = xas.last
+
+  override def lastOption: Option[Arg[X]] = xas.lastOption
+
+  override def filter(pred: Arg[X] => Boolean): Iterable[Arg[X]] = xas.filter(pred)
+
+  override def filterNot(pred: Arg[X] => Boolean): Iterable[Arg[X]] = xas.filterNot(pred)
+
+  override def foreach[U](f: Arg[X] => U): Unit = xas.foreach(f)
+
+  override def forall(p: Arg[X] => Boolean): Boolean = xas.forall(p)
+
+  override def exists(p: Arg[X] => Boolean): Boolean = xas.exists(p)
+
+  override def count(p: Arg[X] => Boolean): Int = xas.count(p)
+
+  override def find(p: Arg[X] => Boolean): Option[Arg[X]] = xas.find(p)
+
+  override def isEmpty: Boolean = xas.isEmpty
 
   /**
     * Method to process one Arg and return the remainder of the arguments as an Args.
