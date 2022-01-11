@@ -221,6 +221,12 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     a[MatchError] shouldBe thrownBy(sa.matchAndShift { case Arg(None, None) => })
   }
 
+  it should "toString" in {
+    val sa = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    sa.isSuccess shouldBe true
+    sa.get.toString shouldBe "Arg: flag f with value: argFilename; Arg: flag anonymous with value: 3.1415927"
+  }
+
   it should "do implement matchAndShift 2" in {
     val sa: Args[String] = Args.make(Array("-f", "argFilename", "3.1415927"))
     println(sa.matchAndShift { case Arg(Some(name), Some(file)) => println(s"$name $file") })
@@ -366,7 +372,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should """implement validate(String)""" in {
-    val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"))
+    val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"), optionalProgramName = Some("unit test"))
     say should matchPattern { case Success(_) => }
     val sa = say.get
     say.get.validate("-x[f filename][p number]") shouldBe Success(sa)

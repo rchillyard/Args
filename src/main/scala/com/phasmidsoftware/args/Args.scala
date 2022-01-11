@@ -449,6 +449,8 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     } else default
     case Nil => throw EmptyArgsException
   }
+
+  override def toString(): String = xas.mkString("; ")
 }
 
 object Args {
@@ -482,11 +484,16 @@ object Args {
   /**
     * Method to parse a set of command line arguments that conform to the POSIX standard.
     *
-    * @param args     the command line arguments.
-    * @param synopsis the (optional) syntax template which will be used, if not None, to validate the options.
+    * @param args                the command line arguments.
+    * @param synopsis            the (optional) syntax template which will be used, if not None, to validate the options.
+    * @param optionalProgramName if optionalProgramName is defined,
+    *                            the args array will be written to the Error Output, prefixed by the program name.
     * @return the arguments parsed as an Args[String], wrapped in Try.
     */
-  def parse(args: Array[String], synopsis: Option[String] = None): Try[Args[String]] = doParse((new Parser).parseCommandLine(args), synopsis)
+  def parse(args: Array[String], synopsis: Option[String] = None, optionalProgramName: Option[String] = None): Try[Args[String]] = {
+    optionalProgramName.foreach(name => System.err.println(s"""$name: ${args.mkString(" ")}"""))
+    doParse((new Parser).parseCommandLine(args), synopsis)
+  }
 
   /**
     * Method to create an Args object from a variable number of Arg parameters.
