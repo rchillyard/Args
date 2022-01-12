@@ -131,12 +131,14 @@ an option which is optional must be the last of any group.
     def isOptional(s: Synopsis): Maybe
     def byName(w: String): Option[Arg[X]]
     def map[Y](f: X => Y): Arg[Y]
-    def asOption: Option[(String, Option[X])]
-    def operand: Option[X]
+    def flatMap[Y](f: X => Arg[Y]): Arg[Y]
+    def mapMap[Y](f: X => Option[Y]): Arg[Y]
+    def as[Y: Derivable]: Arg[Y]
     def toY[Y: Derivable]: Try[Y]
     def process(fm: Map[String, Option[X] => Unit]): Try[Option[X]]
-    def process(c: String): Try[Option[X]]
     def compare(that: Arg[X]): Int
+    lazy val asOption: Option[(String, Option[X])]
+    lazy val operand: Option[X]
 
 ## Object Arg: method signatures
 
@@ -145,21 +147,31 @@ an option which is optional must be the last of any group.
 
 ## Class Args: method signatures
 
+    def :+(xa: Arg[X]): Args[X]
+    def +:(xa: Arg[X]): Args[X]
+    def ++(xq: Args[X]): Args[X]
     def validate(w: String): Try[Args[X]]
     def validate(sy: Try[Synopsis]): Args[X]
     def validate(s: Synopsis): Boolean
-    def map[Y](f: X => Y): Args[Y]
+    def mapMap[Y](f: X => Y): Args[Y]
+    def map[Y](f: Arg[X] => Arg[Y]): Args[Y]
+    def flatMap[Y](f: Arg[X] => Args[Y]): Args[Y]
     def as[Y: Derivable]: Args[Y]
-    def options: Map[String, Option[X]]
-    def operands: Seq[X]
     def operands(s: Synopsis): Map[String, X]
     def getArg(w: String): Option[Arg[X]]
-    def getArgValue[Y: Derivable](w: String): Option[Y]
+    def getArgValueAs[Y: Derivable](w: String): Option[Y]
+    def getArgValue(w: String): Option[X]
     def isDefined(w: String): Boolean
     def process(fm: Map[String, Option[X] => Unit]): Try[Seq[X]]
-    def iterator: Iterator[Arg[X]]
     def matchAndShift(f: PartialFunction[Arg[X], Unit]): Args[X]
     def matchAndShiftOrElse(f: PartialFunction[Arg[X], Unit])(default: => Args[X]): Args[X]
+    lazy val options: Map[String, Option[X]]
+    lazy val operands: Seq[X]
+
+Additionally, many methods of _Iterable\[Arg\[X]]_ are also included where it makes sense,
+such as:
+
+    def iterator: Iterator[Arg[X]]
 
 ## Object Args:
 
@@ -170,14 +182,22 @@ an option which is optional must be the last of any group.
 
 ## Trait Derivable:
 
-*Derivable\[T\]* is a type class which defines the following method:
+*Derivable\[T\]* is a type class which defines the following methods:
 
     def deriveFrom[X](x: X): T
+    def deriveFromOpt[X](x: X): Option[T]
 
-There is one implicitly instance of *Derivable* of type *Derivable\[Int\]* 
-with method defined for a *String* parameter.
+There are implicitly instance of *Derivable* of type *Derivable\[T]* 
+with methods defined for *String* parameters.
+The currently supported \[T] types are _Boolean_, _Int_, _Double_, _File_, _URL_.
 
 ## Versions
 
-The current version is 1.0.2
+The current version is 1.0.3
+Differences from V1.0.2:
+* added deriveFromOpt method to _Derivable_; added more _Derivable_ objects;
+* added concatenation methods for _Args_;
+* added mapMap methods to _Arg_ and _Args_;
+* a few other minor changes to name/signature;
+
 Differences from V1.0.1: more usage of _Try_ (mostly internal).

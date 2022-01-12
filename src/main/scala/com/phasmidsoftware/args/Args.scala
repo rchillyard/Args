@@ -66,11 +66,41 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   def map[Y](f: X => Y): Arg[Y] = Arg(name, value map f)
 
   /**
+    * Method to map this Arg into an Arg of underlying type Y but where the function given is X => Option[Y]
+    *
+    * @param f a function to convert an X into an Option[Y].
+    * @tparam Y the underlying type of the result.
+    * @return an Arg[Y]
+    */
+  def mapMap[Y](f: X => Option[Y]): Arg[Y] = Arg(name, value flatMap f)
+
+  /**
+    * Method to flatMap this Arg into an Arg of underlying type Y
+    *
+    * @param f a function to convert an X into a Y.
+    * @tparam Y the underlying type of the result.
+    * @return an Arg[Y]
+    */
+  def flatMap[Y](f: X => Arg[Y]): Arg[Y] = value.map(f) match {
+    case Some(a) => a
+    case _ => Arg[Y](name, None)
+  }
+
+  /**
+    * Convert this Arg[X] to an Arg[Y].
+    * In practice, this method invokes map with the function deriveFrom invoked on the Derivable[Y] evidence.
+    *
+    * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
+    * @return an Args[Y].
+    */
+  def as[Y: Derivable]: Arg[Y] = mapMap[Y](implicitly[Derivable[Y]].deriveFromOpt[X](_))
+
+  /**
     * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether it's an "option".
     *
     * @return Some[(String, Option[X]) if name is not None otherwise None.
     */
-  def asOption: Option[(String, Option[X])] = name match {
+  lazy val asOption: Option[(String, Option[X])] = name match {
     case Some(w) => Some(w, value)
     case _ => None
   }
@@ -80,7 +110,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     *
     * @return Some[X] if name is None otherwise None.
     */
-  def operand: Option[X] = name match {
+  lazy val operand: Option[X] = name match {
     case None => value
     case _ => None
   }
@@ -158,9 +188,44 @@ object Arg {
     * @return v valueless Arg[String] with name w and value v.
     */
   def apply(w: String, v: String): Arg[String] = Arg(Some(w), Some(v))
+  //
+  //  def multiply(x: Int, y: Int): Int = x * y
+  //  val identity: Int => Int = 1 * _
+  //
+  //  val string: Any => String = _.toString
+  //
+  //  val f = println _
+  //
+  //  val z = new (Int => String) { def apply(x: Int): String = x.toString }
+  //
+  //  f(string(identity(42)))
 }
 
 case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
+
+  /**
+    * Method to append an Arg[X] to this Args[X].
+    *
+    * @param xa the Arg[X] to be appended.
+    * @return a new Args[X].
+    */
+  def :+(xa: Arg[X]): Args[X] = Args(xas :+ xa)
+
+  /**
+    * Method to prepend an Arg[X] to this Args[X].
+    *
+    * @param xa the Arg[X] to be prepended.
+    * @return a new Args[X].
+    */
+  def +:(xa: Arg[X]): Args[X] = Args(xa +: xas)
+
+  /**
+    * Method to concatenate this Args[X] with xq.
+    *
+    * @param xq an Args[X].
+    * @return a new Args[X].
+    */
+  def ++(xq: Args[X]): Args[X] = Args(xas ++ xq.xas)
 
   /**
     * Method to validate this Args according to the POSIX-style synopsis w, expressed as a String.
@@ -207,13 +272,34 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
   }
 
   /**
-    * Apply the given function f to each Arg of this Args
+    * Apply the given map(f) to each Arg of this Args
     *
     * @param f a function of type X => Y
     * @tparam Y the result type of the function f
     * @return an Args[Y] object
     */
-  def map[Y](f: X => Y): Args[Y] = Args(for (xa <- xas) yield xa.map(f))
+  def mapMap[Y](f: X => Y): Args[Y] =
+    Args(for (xa <- xas) yield xa.map(f))
+
+  /**
+    * Apply the given function f to each Arg of this Args
+    *
+    * @param f a function of type Arg[X] => Arg[Y]
+    * @tparam Y the result type of the function f
+    * @return an Args[Y] object
+    */
+  def map[Y](f: Arg[X] => Arg[Y]): Args[Y] =
+    Args(for (xa <- xas) yield f(xa))
+
+  /**
+    * Apply the given function f to each Arg of this Args
+    *
+    * @param f a function of type X => Args[Y]
+    * @tparam Y the result type of the function f
+    * @return an Args[Y] object
+    */
+  def flatMap[Y](f: Arg[X] => Args[Y]): Args[Y] =
+    (for (xa <- xas) yield f(xa)).foldLeft(Args[Y](Seq()))((aa, a) => aa ++ a)
 
   /**
     * Convert this Args[X] to an Args[Y].
@@ -222,21 +308,21 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
     * @return an Args[Y].
     */
-  def as[Y: Derivable]: Args[Y] = map[Y](implicitly[Derivable[Y]].deriveFrom[X](_))
+  def as[Y: Derivable]: Args[Y] = mapMap[Y](implicitly[Derivable[Y]].deriveFrom[X](_))
 
   /**
     * Get the options (i.e. args with names) as map of names to (optional) values
     *
     * @return the options as a map
     */
-  def options: Map[String, Option[X]] = (for (xa <- xas) yield xa.asOption).flatten.toMap
+  lazy val options: Map[String, Option[X]] = (for (xa <- xas) yield xa.asOption).flatten.toMap
 
   /**
     * Get the operands or positional arguments (i.e. args without names) as a sequence of X values.
     *
     * @return a sequence of X values.
     */
-  def operands: Seq[X] = (for (xa <- xas) yield xa.operand).flatten
+  lazy val operands: Seq[X] = (for (xa <- xas) yield xa.operand).flatten
 
   /**
     * Get the operands (positional arguments) as a map of String->X pairs.
@@ -266,7 +352,15 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @tparam Y the result type
     * @return an option value of Y (None if toY yields a Failure)
     */
-  def getArgValue[Y: Derivable](w: String): Option[Y] = getArg(w) flatMap (xa => xa.toY.toOption)
+  def getArgValueAs[Y: Derivable](w: String): Option[Y] = getArg(w) flatMap (xa => xa.toY.toOption)
+
+  /**
+    * Get the arg value where the name matches the given string and where the resulting type is Y
+    *
+    * @param w the string to match
+    * @return an option value of Y (None if there is no value).
+    */
+  def getArgValue(w: String): Option[X] = getArg(w) flatMap (xa => xa.value)
 
   /**
     * Method to determine if the argument identified by w is defined.
@@ -288,7 +382,47 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
       case Failure(x) => Failure(x)
     }
 
+  //  /**
+  //    * Process this Args according to the map fm of String->function.
+  //    *
+  //    * @param fm a Map of String->function where function is of type Option[X]=>Unit
+  //    * @return a Try[Seq[X] resulting from iteration through each Arg and processing it.
+  //    */
+  //  def processAsync(fm: Map[String, Option[X] => Unit]): Future[Seq[X]] = {
+  //    import scala.concurrent.ExecutionContext.Implicits.global
+  //    val xoyfs: Seq[Future[Try[Option[X]]]] = for (xa <- xas) yield for (x <- Future(xa.process(fm))) yield x
+  //    val xoysf: Future[Seq[Try[Option[X]]]] = Future.sequence(xoyfs)
+  //    val xosyf: Future[Try[Seq[Option[X]]]] = for (xoys <- xoysf) yield sequence(xoys)
+  //    xosyf
+  //  }
+
   def iterator: Iterator[Arg[X]] = xas.iterator
+
+  override def size: Int = xas.size
+
+  override def head: Arg[X] = xas.head
+
+  override def headOption: Option[Arg[X]] = xas.headOption
+
+  override def last: Arg[X] = xas.last
+
+  override def lastOption: Option[Arg[X]] = xas.lastOption
+
+  override def filter(pred: Arg[X] => Boolean): Iterable[Arg[X]] = xas.filter(pred)
+
+  override def filterNot(pred: Arg[X] => Boolean): Iterable[Arg[X]] = xas.filterNot(pred)
+
+  override def foreach[U](f: Arg[X] => U): Unit = xas.foreach(f)
+
+  override def forall(p: Arg[X] => Boolean): Boolean = xas.forall(p)
+
+  override def exists(p: Arg[X] => Boolean): Boolean = xas.exists(p)
+
+  override def count(p: Arg[X] => Boolean): Int = xas.count(p)
+
+  override def find(p: Arg[X] => Boolean): Option[Arg[X]] = xas.find(p)
+
+  override def isEmpty: Boolean = xas.isEmpty
 
   /**
     * Method to process one Arg and return the remainder of the arguments as an Args.
@@ -315,6 +449,8 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     } else default
     case Nil => throw EmptyArgsException
   }
+
+  override def toString(): String = xas.mkString("; ")
 }
 
 object Args {
@@ -348,11 +484,16 @@ object Args {
   /**
     * Method to parse a set of command line arguments that conform to the POSIX standard.
     *
-    * @param args     the command line arguments.
-    * @param synopsis the (optional) syntax template which will be used, if not None, to validate the options.
+    * @param args                the command line arguments.
+    * @param synopsis            the (optional) syntax template which will be used, if not None, to validate the options.
+    * @param optionalProgramName if optionalProgramName is defined,
+    *                            the args array will be written to the Error Output, prefixed by the program name.
     * @return the arguments parsed as an Args[String], wrapped in Try.
     */
-  def parse(args: Array[String], synopsis: Option[String] = None): Try[Args[String]] = doParse((new Parser).parseCommandLine(args), synopsis)
+  def parse(args: Array[String], synopsis: Option[String] = None, optionalProgramName: Option[String] = None): Try[Args[String]] = {
+    optionalProgramName.foreach(name => System.err.println(s"""$name: ${args.mkString(" ")}"""))
+    doParse((new Parser).parseCommandLine(args), synopsis)
+  }
 
   /**
     * Method to create an Args object from a variable number of Arg parameters.
@@ -375,7 +516,7 @@ object Args {
     */
   def make(args: Seq[String]): Args[String] = parse(args.toArray[String]).get
 
-  private def doParse(ps: Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
+  private def doParse(ps: => Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
     val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
     def processPosixArg(p: PosixArg): Seq[PosixArg] = p match {
@@ -418,7 +559,7 @@ object Args {
       case _ => throw ParseException(s"inner: failed to match $w")
     }
 
-    val as = (for (p <- ps) yield processPosixArg(p)).flatten
+    lazy val as = (for (p <- ps) yield processPosixArg(p)).flatten
     Try(Args(inner(Seq(), as))) flatMap (_ validate sy)
   }
 }

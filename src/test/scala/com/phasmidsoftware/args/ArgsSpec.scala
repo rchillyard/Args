@@ -7,6 +7,8 @@ package com.phasmidsoftware.args
 import org.scalatest.flatspec
 import org.scalatest.matchers.should
 
+import java.io.File
+import java.net.URL
 import scala.util.{Failure, Success}
 
 class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
@@ -36,19 +38,48 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     result.value shouldBe Some(x1)
   }
 
+  it should "implement flatMap" in {
+    val target = Arg(sX, s1)
+    val result = target.flatMap(w => Arg(None, w.toIntOption))
+    result.value shouldBe Some(x1)
+  }
+
   it should "implement map with exception" in {
     val target = Arg(sX, sX)
     a[java.lang.NumberFormatException] shouldBe thrownBy(target.map(_.toInt))
   }
 
-  it should "implement toY" in {
-    implicit object DerivableStringInt$ extends Derivable[Int] {
+  it should "implement as[Int]" in {
+    val target = Arg(sX, s1)
+    target.as[Int] shouldBe Arg(Some("x"), Some(1))
+  }
 
-      def deriveFrom[X](x: X): Int = x match {
-        case x: String => x.toInt
-        case _ => throw NotImplemented(s"deriveFrom: $x")
-      }
-    }
+  it should "implement as[Boolean]" in {
+    val target = Arg(sX, "true")
+    target.as[Boolean] shouldBe Arg(Some("x"), Some(true))
+  }
+
+  it should "implement as[Double]" in {
+    val target = Arg(sX, "1.0")
+    target.as[Double] shouldBe Arg(Some("x"), Some(1.0))
+  }
+
+  it should "implement as[File]" in {
+    val target = Arg(sX, "build.sbt")
+    target.as[File] shouldBe Arg(Some("x"), Some(new File("build.sbt")))
+  }
+
+  it should "implement as[URL]" in {
+    val target = Arg(sX, "https://www.google.com")
+    target.as[URL] shouldBe Arg(Some("x"), Some(new URL("https://www.google.com")))
+  }
+
+  it should "implement as[URL] malformed" in {
+    val target = Arg(sX, "://www.google.com")
+    target.as[URL] shouldBe Arg(Some("x"), None)
+  }
+
+  it should "implement toY" in {
     val target = Arg(sX, s1)
     target.toY[Int] shouldBe Success(1)
   }
@@ -91,16 +122,42 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   behavior of "Args"
 
-  it should "work" in {
+  it should "create" in {
     val target = Args.create(Arg(sX, s1))
     target.size shouldBe 1
     target.head.name shouldBe Some(sX)
     target.head.value shouldBe Some(s1)
   }
 
+  it should "implement :+" in {
+    val target = Args.empty[String]
+    val result = target :+ Arg(sX)
+    result shouldBe Args.create(Arg(sX))
+    result :+ Arg(sY) shouldBe Args.create(Arg(sX), Arg(sY))
+  }
+
+  it should "implement +:" in {
+    val target = Args.empty[String]
+    val result = Arg(sX) +: target
+    result shouldBe Args.create(Arg(sX))
+    Arg(sY) +: result shouldBe Args.create(Arg(sY), Arg(sX))
+  }
+
+  it should "implement ++" in {
+    val target = Args.create(Arg(sX))
+    val result = target ++ Args.create(Arg(sY))
+    result shouldBe Args(Seq(Arg(sX), Arg(sY)))
+  }
+
+  it should "implement mapMap" in {
+    val target = Args.create(Arg(sX, s1))
+    val result: Args[Int] = target.mapMap(_.toInt)
+    result.head.value shouldBe Some(x1)
+  }
+
   it should "implement map" in {
     val target = Args.create(Arg(sX, s1))
-    val result: Args[Int] = target.map(_.toInt)
+    val result: Args[Int] = target.map(xa => xa.map(_.toInt))
     result.head.value shouldBe Some(x1)
   }
 
@@ -148,6 +205,11 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     target.get.operands(s) shouldBe Map("first" -> s1, "second" -> sX)
   }
 
+  it should "fail on empty array" in {
+    val sa = Args.parse(Array[String]())
+    sa.isSuccess shouldBe false
+  }
+
   it should "implement toList" in {
     val sa = Args.parse(Array("-f", "argFilename", "3.1415927"))
     sa.isSuccess shouldBe true
@@ -159,11 +221,17 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     a[MatchError] shouldBe thrownBy(sa.matchAndShift { case Arg(None, None) => })
   }
 
+  it should "toString" in {
+    val sa = Args.parse(Array("-f", "argFilename", "3.1415927"))
+    sa.isSuccess shouldBe true
+    sa.get.toString shouldBe "Arg: flag f with value: argFilename; Arg: flag anonymous with value: 3.1415927"
+  }
+
   it should "do implement matchAndShift 2" in {
     val sa: Args[String] = Args.make(Array("-f", "argFilename", "3.1415927"))
     println(sa.matchAndShift { case Arg(Some(name), Some(file)) => println(s"$name $file") })
     sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => println("f argFilename") } shouldBe Args(List(Arg(None, Some("3.1415927"))))
-    val z: Args[Double] = sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.map(_.toDouble)
+    val z: Args[Double] = sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.mapMap(_.toDouble)
     z.matchAndShift { case Arg(None, Some(3.1415927)) => println("3.1415927") } shouldBe Args(List())
   }
 
@@ -195,7 +263,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val sa = say.get
     sa.xas.length shouldBe 3
     sa.xas.head shouldBe Arg(None, Some("1"))
-    val xa: Args[Int] = sa.map(_.toInt)
+    val xa: Args[Int] = sa.mapMap(_.toInt)
     xa shouldBe Args(Seq(Arg(None, Some(1)), Arg(None, Some(2)), Arg(None, Some(3))))
     val processor = Map[String, Option[Int] => Unit]()
     xa.process(processor) should matchPattern { case Success(Seq(1, 2, 3)) => }
@@ -207,7 +275,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val sa = say.get
     sa.xas.length shouldBe 3
     sa.xas.head shouldBe Arg(None, Some("1"))
-    val xa: Args[Int] = sa.map(_.toInt)
+    val xa: Args[Int] = sa.mapMap(_.toInt)
     xa shouldBe Args(Seq(Arg(None, Some(1)), Arg(None, Some(2)), Arg(None, Some(3))))
     val processor = Map[String, Option[Int] => Unit]()
     xa.process(processor) should matchPattern { case Success(Seq(1, 2, 3)) => }
@@ -239,15 +307,15 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should """implement getArgValue("f")""" in {
-    implicit object DerivableStringString$ extends Derivable[String] {
-
-      def deriveFrom[X](x: X): String = x match {
-        case x: String => x
-        case _ => throw NotImplemented(s"deriveFrom: $x")
-      }
-    }
     val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("f"), Some("argFilename")), Arg(None, Some("3.1415927"))))
-    sa.getArgValue("f") shouldBe Some("argFilename")
+    val value: Option[String] = sa.getArgValue("f")
+    value shouldBe Some("argFilename")
+  }
+
+  it should """implement getArgValueAs("f")""" in {
+    val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("n"), Some("1")), Arg(None, Some("3.1415927"))))
+    val value: Option[Int] = sa.getArgValueAs[Int]("n")
+    value shouldBe Some(1)
   }
 
   it should """implement process for complex Args""" in {
@@ -266,6 +334,19 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val ia: Args[Int] = say.get.as
     ia.operands shouldBe Seq(1, 2, 3)
   }
+
+  //  it should """support for-comprehension for complex Args""" in {
+  //    val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("f"), Some("argFilename")), Arg(None, Some("3.1415927"))))
+  //    for {
+  //      x <-
+  //    }
+  //    var x = false
+  //    var filename = ""
+  //    val processor = Map[String, Option[String] => Unit]("x" -> { _ => x = true }, "f" -> { case Some(w) => filename = w; case _ => })
+  //    sa.process(processor) should matchPattern { case Success(Seq("3.1415927")) => }
+  //    x shouldBe true
+  //    filename shouldBe "argFilename"
+  //  }
 
   behavior of "Args validation"
   it should "parse " + cmdF + " " + argFilename in {
@@ -291,7 +372,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should """implement validate(String)""" in {
-    val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"))
+    val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"), optionalProgramName = Some("unit test"))
     say should matchPattern { case Success(_) => }
     val sa = say.get
     say.get.validate("-x[f filename][p number]") shouldBe Success(sa)
