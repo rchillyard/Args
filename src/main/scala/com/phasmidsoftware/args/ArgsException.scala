@@ -25,3 +25,5 @@ case class InvalidOptionException[X](arg: Arg[X]) extends ArgsException(s"Arg ${
 case class CompareException(str: String) extends ArgsException(s"Arg compare exception: $str")
 
 case class NoOptionInSynopsisException(str: String) extends ArgsException(s"parse error: option $str was not found in synopsis")
+
+case class MapException(str: String) extends ArgsException(s"Arg map exception: $str")

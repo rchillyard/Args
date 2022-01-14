@@ -75,6 +75,15 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   def mapMap[Y](f: X => Option[Y]): Arg[Y] = Arg(name, value flatMap f)
 
   /**
+    * Method to map this Arg into an Arg of underlying type Y but where the function given is Option[X] => Option[Y]
+    *
+    * @param f a function to convert an Option[X] into an Option[Y].
+    * @tparam Y the underlying type of the result.
+    * @return an Arg[Y]
+    */
+  def mapMapOption[Y](f: Option[X] => Option[Y]): Arg[Y] = Arg(name, f(value))
+
+  /**
     * Method to flatMap this Arg into an Arg of underlying type Y
     *
     * @param f a function to convert an X into a Y.
@@ -134,7 +143,10 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     * @return the result of deriving a Y value from the actual value of this Arg, wrapped in Try.
     */
   def toY[Y: Derivable]: Try[Y] = value match {
-    case Some(x) => Success(implicitly[Derivable[Y]].deriveFrom(x))
+    case Some(x) => implicitly[Derivable[Y]].deriveFromOpt(x) match {
+      case Some(y) => Success(y)
+      case None => Failure(MapException("cannot map from X to Y"))
+    }
     case _ => Failure(NoValueException(name))
   }
 
@@ -294,6 +306,26 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     Args(for (xa <- xas) yield xa.map(f))
 
   /**
+    * Apply the given function f, using mapMapOption, to each Arg of this Args.
+    *
+    * @param f a function of type Option[X] => Option[Y].
+    * @tparam Y the result type of the function f
+    * @return an Args[Y] object
+    */
+  def mapMapOption[Y](f: Option[X] => Option[Y]): Args[Y] =
+    Args(for (xa <- xas) yield xa.mapMapOption(f))
+
+  /**
+    * Apply the given function f, using mapMap, to each Arg of this Args.
+    *
+    * @param f a function of type X => Option[Y]
+    * @tparam Y the result type of the function f
+    * @return an Args[Y] object
+    */
+  def mapOption[Y](f: X => Option[Y]): Args[Y] =
+    Args(for (xa <- xas) yield xa.mapMap(f))
+
+  /**
     * Apply the given function f to each Arg of this Args
     *
     * @param f a function of type Arg[X] => Arg[Y]
@@ -320,7 +352,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
     * @return an Args[Y].
     */
-  def as[Y: Derivable]: Args[Y] = mapMap[Y](implicitly[Derivable[Y]].deriveFrom[X](_))
+  def as[Y: Derivable]: Args[Y] = mapOption[Y](implicitly[Derivable[Y]].deriveFromOpt[X](_))
 
   /**
     * Get the options (i.e. args with names) as map of names to (optional) values
