@@ -129,6 +129,11 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     target.head.value shouldBe Some(s1)
   }
 
+  it should "showArgs" in {
+    val args = Array("-x", "1")
+    Args.showArgs(args) shouldBe "-x 1"
+  }
+
   it should "implement :+" in {
     val target = Args.empty[String]
     val result = target :+ Arg(sX)
