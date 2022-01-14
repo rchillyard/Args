@@ -88,12 +88,24 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
 
   /**
     * Convert this Arg[X] to an Arg[Y].
-    * In practice, this method invokes map with the function deriveFrom invoked on the Derivable[Y] evidence.
+    * In practice, this method invokes mapMap with the function deriveFromOpt invoked on the Derivable[Y] evidence.
     *
     * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
-    * @return an Args[Y].
+    * @return an Arg[Y].
     */
   def as[Y: Derivable]: Arg[Y] = mapMap[Y](implicitly[Derivable[Y]].deriveFromOpt[X](_))
+
+  /**
+    * Convert this Arg[X] to an Arg of Either[Y].
+    * In practice, this method invokes map with the function deriveFromOpt invoked on the Derivable[Y] evidence.
+    *
+    * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
+    * @return an Arg of Either[Y]..
+    */
+  def eitherOr[Y: Derivable]: Arg[Either[X, Y]] = map[Option[Y]](implicitly[Derivable[Y]].deriveFromOpt(_)) match {
+    case Arg(no, Some(Some(y))) => Arg(no, Some(Right(y)))
+    case _ => Arg(name, value map (Left(_)))
+  }
 
   /**
     * Method to return this Arg as an optional tuple of a String and an optional X value, according to whether it's an "option".
@@ -361,6 +373,14 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @return an option value of Y (None if there is no value).
     */
   def getArgValue(w: String): Option[X] = getArg(w) flatMap (xa => xa.value)
+
+  /**
+    * Get the arg value where the name matches the given string and where the resulting type is Y
+    *
+    * @param w the string to match
+    * @return an option value of Y (None if there is no value).
+    */
+  def getArgValueEitherOr[Y: Derivable](w: String): Option[Either[X, Y]] = for (xa <- getArg(w); xYea = xa.eitherOr[Y]; xYe <- xYea.value) yield xYe
 
   /**
     * Method to determine if the argument identified by w is defined.

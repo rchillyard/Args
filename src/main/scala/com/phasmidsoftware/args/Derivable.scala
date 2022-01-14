@@ -21,6 +21,7 @@ trait Derivable[T] {
     * @tparam X the input type
     * @return a T
     */
+  @deprecated("Use deriveFromOpt instead", "1.0.4")
   def deriveFrom[X](x: X): T
 
   /**

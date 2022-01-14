@@ -312,6 +312,13 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     value shouldBe Some("argFilename")
   }
 
+  it should """implement getArgValueEitherOr("f")""" in {
+    val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("f"), Some("argFilename")), Arg(Some("d"), Some("3.1415927"))))
+    sa.getArgValueEitherOr[Double]("x") shouldBe None
+    sa.getArgValueEitherOr[Double]("f") shouldBe Some(Left("argFilename"))
+    sa.getArgValueEitherOr[Double]("d") shouldBe Some(Right(3.1415927))
+  }
+
   it should """implement getArgValueAs("f")""" in {
     val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("n"), Some("1")), Arg(None, Some("3.1415927"))))
     val value: Option[Int] = sa.getArgValueAs[Int]("n")

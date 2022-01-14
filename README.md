@@ -135,6 +135,7 @@ an option which is optional must be the last of any group.
     def mapMap[Y](f: X => Option[Y]): Arg[Y]
     def as[Y: Derivable]: Arg[Y]
     def toY[Y: Derivable]: Try[Y]
+    def eitherOr[Y: Derivable]: Arg[Either[X, Y]]
     def process(fm: Map[String, Option[X] => Unit]): Try[Option[X]]
     def compare(that: Arg[X]): Int
     lazy val asOption: Option[(String, Option[X])]
@@ -161,6 +162,7 @@ an option which is optional must be the last of any group.
     def getArg(w: String): Option[Arg[X]]
     def getArgValueAs[Y: Derivable](w: String): Option[Y]
     def getArgValue(w: String): Option[X]
+    def getArgValueEitherOr[Y: Derivable](w: String): Option[Either[X, Y]]
     def isDefined(w: String): Boolean
     def process(fm: Map[String, Option[X] => Unit]): Try[Seq[X]]
     def matchAndShift(f: PartialFunction[Arg[X], Unit]): Args[X]
