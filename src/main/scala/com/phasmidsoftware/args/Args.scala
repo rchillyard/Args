@@ -493,6 +493,8 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
 }
 
 object Args {
+  def showArgs(args: Array[String]): String = args.mkString(" ")
+
   /**
     * Method to create an empty Args.
     *
@@ -545,8 +547,8 @@ object Args {
     * @return the arguments parsed as an Args[String], wrapped in Try.
     */
   def parse(args: Array[String], synopsis: Option[String] = None, optionalProgramName: Option[String] = None): Try[Args[String]] = {
-    optionalProgramName.foreach(name => System.err.println(s"""$name: ${args.mkString(" ")}"""))
-    doParse((new Parser).parseCommandLine(args.toIndexedSeq), synopsis)
+    optionalProgramName.foreach(name => System.err.println(s"""$name: ${showArgs(args)}"""))
+    doParse((new Parser).parseCommandLine(args), synopsis)
   }
 
   /**
