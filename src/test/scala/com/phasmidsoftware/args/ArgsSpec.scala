@@ -9,6 +9,7 @@ import org.scalatest.matchers.should
 
 import java.io.File
 import java.net.URL
+import scala.collection.mutable
 import scala.util.{Failure, Success}
 
 class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
@@ -90,7 +91,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "process " + sX + ": append" in {
-    val sb = new StringBuilder
+    val sb = new mutable.StringBuilder
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit]({ x => sb.append(x) }))
     val target = Arg(sX, s1)
     val result = target.process(processor)
@@ -99,7 +100,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "not process " + sY + ": append" in {
-    val sb = new StringBuilder
+    val sb = new mutable.StringBuilder
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { x => sb.append(x) })
     val target = Arg(sY, s1)
     val result = target.process(processor)
@@ -164,6 +165,12 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val target = Args.create(Arg(sX, s1))
     val result: Args[Int] = target.map(xa => xa.map(_.toInt))
     result.head.value shouldBe Some(x1)
+  }
+
+  it should "implement flatMap" in {
+    val target = Args.create(Arg(sX, s1))
+    val result: Args[String] = target.flatMap(xa => Args.singleton(xa))
+    result.head.value shouldBe Some(s1)
   }
 
   it should "implement getArg with good name" in {
@@ -247,7 +254,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   it should "process " + sX + ": append" in {
     val sA = "a"
-    val sb = new StringBuilder
+    val sb = new mutable.StringBuilder
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { case Some(x) => sb.append(x); case _ => })
     val target = Args.create(Arg(sX, s1), Arg(sX, sA))
     val result = target.process(processor)
@@ -383,7 +390,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     a[ValidationException[String]] shouldBe thrownBy(Args.parse(Array(cmdF, argFilename), Some("-xf filename")).get)
   }
 
-  it should """implement validate(String)""" in {
+  it should """implement doValidation(String)""" in {
     val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"), optionalProgramName = Some("unit test"))
     say should matchPattern { case Success(_) => }
     val sa = say.get
@@ -391,7 +398,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     say.get.validate("-xf filename -p number") shouldBe Success(sa)
   }
 
-  it should "validate -x[f[ filename]] as a synopsis for -xfargFilename" in {
+  it should "doValidation -x[f[ filename]] as a synopsis for -xfargFilename" in {
     Args.parse(Array("-xfargFilename"), Some("-x[f[ filename]]")) shouldBe Success(Args.create(Arg("x"), Arg("f", "argFilename")))
   }
 
