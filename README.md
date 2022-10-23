@@ -195,8 +195,10 @@ The currently supported \[T] types are _Boolean_, _Int_, _Double_, _File_, _URL_
 
 ## Versions
 
-The current version is 1.0.3
-Differences from V1.0.2:
+The current version is 1.0.4
+Improve API for Java users.
+
+### Version V1.0.3:
 * added deriveFromOpt method to _Derivable_; added more _Derivable_ objects;
 * added concatenation methods for _Args_;
 * added mapMap methods to _Arg_ and _Args_;
