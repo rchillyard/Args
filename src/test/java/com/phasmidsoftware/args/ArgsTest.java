@@ -14,10 +14,17 @@ public class ArgsTest {
 
     @Test
     public void testParseSimple() {
-        final String[] cndLineArgs = new String[]{"1", "2"};
-        final Try<Args<String>> target = Args.parseSimple(cndLineArgs);
+        final String[] cmdLineArgs = new String[]{"1", "2"};
+        final Try<Args<String>> target = Args.parseSimple(cmdLineArgs);
         assertTrue(target.isSuccess());
         assertEquals(2, target.get().size());
+    }
+
+    @Test
+    public void testMake() {
+        final String[] cmdLineArgs = new String[]{"1", "2"};
+        final Args<String> target = Args.make(cmdLineArgs);
+        assertEquals(2, target.size());
     }
 
     @Test
