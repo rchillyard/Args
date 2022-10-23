@@ -81,6 +81,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     * @tparam Y the underlying type of the result.
     * @return an Arg[Y]
     */
+  @deprecated
   def mapMapOption[Y](f: Option[X] => Option[Y]): Arg[Y] = Arg(name, f(value))
 
   /**
@@ -267,33 +268,12 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     *
     * @param sy the optional Synopsis.
     * @return this, wrapped in Success, provided that the sy is not a Failure and that the result of calling validate(Synopsis) is true.
-    * @throws InvalidOptionException if any Arg cannot be found in the synopsis.
     */
-  def validate(sy: Try[Synopsis]): Try[Args[X]] = sy match {
-    case Success(s) => if (validate(s)) Success(this) else Failure(ValidationException(this, s))
-    case _ => Success(this)
-  }
-
-  /**
-    * Method to validate this Args according to the given Synopsis.
-    *
-    * CONSIDER returning Try[Boolean]
-    *
-    * @param s the Synopsis.
-    * @return true if all the Arg elements of this are compatible with the synopsis.
-    * @throws InvalidOptionException if this Arg cannot be found in the synopsis.
-    */
-  def validate(s: Synopsis): Boolean = {
-    val (m, _) = s.mandatoryAndOptionalElements
-    // NOTE: the following will throw an exception if any Arg is invalid
-    val (_, mandatory) = xas.filter(_.isOption).partition(_.isOptional(s).toBoolean(false))
-    if (m.size == mandatory.size) {
-      val bs = for (z <- m.sorted zip mandatory.sorted; name <- z._2.name) yield (z._1.value compare name) == 0
-      bs.forall(_ == true)
+  def validate(sy: Try[Synopsis]): Try[Args[X]] = // for (s <- sy; b <- validate(s) if b) yield this
+    sy match {
+      case Success(s) => if (doValidation(s)) Success(this) else Failure(ValidationException(this, s))
+      case _ => Success(this)
     }
-    else
-      false
-  }
 
   /**
     * Apply the given map(f) to each Arg of this Args
@@ -304,16 +284,6 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     */
   def mapMap[Y](f: X => Y): Args[Y] =
     Args(for (xa <- xas) yield xa.map(f))
-
-  /**
-    * Apply the given function f, using mapMapOption, to each Arg of this Args.
-    *
-    * @param f a function of type Option[X] => Option[Y].
-    * @tparam Y the result type of the function f
-    * @return an Args[Y] object
-    */
-  def mapMapOption[Y](f: Option[X] => Option[Y]): Args[Y] =
-    Args(for (xa <- xas) yield xa.mapMapOption(f))
 
   /**
     * Apply the given function f, using mapMap, to each Arg of this Args.
@@ -434,20 +404,6 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
       case Failure(x) => Failure(x)
     }
 
-  //  /**
-  //    * Process this Args according to the map fm of String->function.
-  //    *
-  //    * @param fm a Map of String->function where function is of type Option[X]=>Unit
-  //    * @return a Try[Seq[X] resulting from iteration through each Arg and processing it.
-  //    */
-  //  def processAsync(fm: Map[String, Option[X] => Unit]): Future[Seq[X]] = {
-  //    import scala.concurrent.ExecutionContext.Implicits.global
-  //    val xoyfs: Seq[Future[Try[Option[X]]]] = for (xa <- xas) yield for (x <- Future(xa.process(fm))) yield x
-  //    val xoysf: Future[Seq[Try[Option[X]]]] = Future.sequence(xoyfs)
-  //    val xosyf: Future[Try[Seq[Option[X]]]] = for (xoys <- xoysf) yield sequence(xoys)
-  //    xosyf
-  //  }
-
   def iterator: Iterator[Arg[X]] = xas.iterator
 
   override def size: Int = xas.size
@@ -497,16 +453,62 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     */
   def matchAndShiftOrElse(f: PartialFunction[Arg[X], Unit])(default: => Args[X]): Args[X] = xas match {
     case xa :: tail => if (f.isDefinedAt(xa)) {
-      f(xa); Args(tail)
+      f(xa)
+      Args(tail)
     } else default
     case Nil => throw EmptyArgsException
   }
 
   override def toString(): String = xas.mkString("; ")
+
+  /**
+    * Apply the given function f, using mapMapOption, to each Arg of this Args.
+    *
+    * @param f a function of type Option[X] => Option[Y].
+    * @tparam Y the result type of the function f
+    * @return an Args[Y] object
+    */
+  //noinspection ScalaDeprecation
+  @deprecated
+  def mapMapOption[Y](f: Option[X] => Option[Y]): Args[Y] =
+    Args(for (xa <- xas) yield xa.mapMapOption(f))
+
+  /**
+    * Method to validate this Args according to the given Synopsis.
+    *
+    * @param s the Synopsis.
+    * @return Success(true) if all the Arg elements of this are compatible with the synopsis.
+    */
+  private def doValidation(s: Synopsis): Boolean = {
+    val (m, _) = s.mandatoryAndOptionalElements
+    // NOTE: the following will throw an exception if any Arg is invalid (really?)
+    val (_, mandatory) = xas.filter(_.isOption).partition(_.isOptional(s).toBoolean(false))
+    if (m.size == mandatory.size) {
+      val bs = for (z <- m.sorted zip mandatory.sorted; name <- z._2.name) yield (z._1.value compare name) == 0
+      bs.forall(_ == true)
+    }
+    else
+      false
+  }
 }
 
 object Args {
+  /**
+    * Method to create an empty Args.
+    *
+    * @tparam T the underlying type of the result.
+    * @return an Args[T].
+    */
   def empty[T]: Args[T] = Args(Nil)
+
+  /**
+    * Method to create a singleton Args.
+    *
+    * @param ta an Arg[T].
+    * @tparam T the underlying type of ta, and the result.
+    * @return an Args[T].
+    */
+  def singleton[T](ta: Arg[T]): Args[T] = Args(Seq(ta))
 
   /**
     * Method to parse a set of command line arguments that don't necessarily conform to the POSIX standard,
@@ -527,7 +529,7 @@ object Args {
     }
 
     val tys = for (a <- args) yield p.parseToken(a)
-    sequence(tys) match {
+    sequence(tys.toIndexedSeq) match {
       case Success(ts_) => Success(Args(inner(Seq(), ts_)))
       case Failure(x) => Failure(x)
     }
@@ -544,7 +546,7 @@ object Args {
     */
   def parse(args: Array[String], synopsis: Option[String] = None, optionalProgramName: Option[String] = None): Try[Args[String]] = {
     optionalProgramName.foreach(name => System.err.println(s"""$name: ${args.mkString(" ")}"""))
-    doParse((new Parser).parseCommandLine(args), synopsis)
+    doParse((new Parser).parseCommandLine(args.toIndexedSeq), synopsis)
   }
 
   /**
@@ -557,16 +559,31 @@ object Args {
     */
   def create(args: Arg[String]*): Args[String] = apply(args)
 
+
   /**
     * Method to create an Args[String] from the command line arguments in a main program (or a sub-class of App).
+    * This method is only appropriate for unit testing.
     *
-    * NOTE that we use get here on a Try. We might throw an exception, therefore.
+    * NOTE: we use get here on a Try. We might throw an exception, therefore.
     *
-    * @param args a Seq[String].
+    * @param args an Array[String].
     * @return an Args[String]
     * @throws Exception the result of invoking parse.
     */
-  def make(args: Seq[String]): Args[String] = parse(args.toArray[String]).get
+  def make(args: Array[String]): Args[String] = parse(args).get
+
+  /**
+    * Method to create an Args[String] from an IndexedSeq of Args.
+    * This method is only appropriate for unit testing and is now deprecated.
+    *
+    * NOTE: we use get here on a Try. We might throw an exception, therefore.
+    *
+    * @param args an IndexedSeq[String].
+    * @return an Args[String]
+    * @throws Exception the result of invoking parse.
+    */
+  @deprecated
+  def make(args: IndexedSeq[String]): Args[String] = parse(args.toArray[String]).get
 
   private def doParse(ps: => Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
     val sy = (new SynopsisParser).parseOptionalSynopsis(wo)

@@ -40,5 +40,6 @@ libraryDependencies ++= (scalaBinaryVersion.value match {
 })
 
 libraryDependencies ++= Seq(
+  "com.novocode" % "junit-interface" % "0.11" % "test",
   scalaTestGroup %% scalaTestArt % scalaTestVersion.value % "test"
 )
