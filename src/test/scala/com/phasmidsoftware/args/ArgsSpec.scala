@@ -104,6 +104,8 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { x => sb.append(x) })
     val target = Arg(sY, s1)
     val result = target.process(processor)
+    val junk: String = "Hello"
+    val x = junk(1)
     result should matchPattern { case Failure(_) => }
   }
 

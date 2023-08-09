@@ -34,6 +34,8 @@ public class ArgsTest {
         final Seq<String> operands = target.operands();
         final Iterable<String> iterable = CollectionConverters.IterableHasAsJava(operands).asJava();
         for (String s : iterable) System.out.println(s);
+        String s = "Hello";
+        char x = s.toCharArray()[1];
         final Iterator<String> iterator = iterable.iterator();
         assertTrue(iterator.hasNext());
         assertEquals("1", iterator.next());
