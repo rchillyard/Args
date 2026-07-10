@@ -13,7 +13,7 @@ import scala.util.Try
   *
   * @tparam T the result type
   */
-trait Derivable[T] {
+trait Derivable[T]:
   /**
     * Method to convert an X to an Option[T].
     *
@@ -22,9 +22,19 @@ trait Derivable[T] {
     * @return an Option[T]
     */
   def deriveFromOpt[X](x: X): Option[T]
-}
 
-object Derivable {
+/**
+  * Provides default given instances of the `Derivable` type class for specific types.
+  * Each instance defines a mechanism to derive a value of type T from an input value of type X.
+  *
+  * Contains given instances for the following derivations:
+  * - Boolean from String
+  * - Int from String
+  * - Double from String
+  * - java.io.File from String
+  * - java.net.URL from String
+  */
+object Derivable:
 
   given DerivableStringBoolean: Derivable[Boolean] with {
     def deriveFromOpt[X](x: X): Option[Boolean] = x match {
@@ -60,6 +70,5 @@ object Derivable {
       case _ => throw NoDerivationAvailable(x.getClass, classOf[java.net.URL])
     }
   }
-}
 
 case class NoDerivationAvailable(xc: Class[_], yc: Class[_]) extends RuntimeException(s"no implicitly defined conversion from $xc to $yc")
