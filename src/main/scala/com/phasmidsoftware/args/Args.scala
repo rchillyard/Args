@@ -527,11 +527,15 @@ object Args {
     * @param synopsis            the (optional) syntax template which will be used, if not None, to validate the options.
     * @param optionalProgramName if optionalProgramName is defined,
     *                            the args array will be written to the Error Output, prefixed by the program name.
+    * @param validate            if true (the default), the parsed result is validated against synopsis
+    *                            (mandatory options and operand arity) before being returned; if false,
+    *                            synopsis is still used to guide flag/value pairing during parsing, but
+    *                            the caller is responsible for invoking validate explicitly afterwards.
     * @return the arguments parsed as an Args[String], wrapped in Try.
     */
-  def parse(args: Array[String], synopsis: Option[String] = None, optionalProgramName: Option[String] = None): Try[Args[String]] = {
+  def parse(args: Array[String], synopsis: Option[String] = None, optionalProgramName: Option[String] = None, validate: Boolean = true): Try[Args[String]] = {
     optionalProgramName.foreach(name => System.err.println(s"""$name: ${showArgs(args)}"""))
-    doParse((new Parser).parseCommandLine(args.toIndexedSeq), synopsis)
+    doParse((new Parser).parseCommandLine(args.toIndexedSeq), synopsis, validate)
   }
 
   /**
@@ -570,7 +574,7 @@ object Args {
   @deprecated
   def make(args: IndexedSeq[String]): Args[String] = parse(args.toArray[String]).get
 
-  private def doParse(ps: => Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
+  private def doParse(ps: => Seq[PosixArg], wo: Option[String] = None, validate: Boolean = true): Try[Args[String]] = {
     val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
     // Method to unwrap an Element down to its "core" and determine whether it declares a
@@ -643,6 +647,7 @@ object Args {
       case _ => throw ParseException(s"loop: failed to match $w")
     }
 
-    Try(Args(loop(Seq(), ps))) flatMap (_ validate sy)
+    val ta = Try(Args(loop(Seq(), ps)))
+    if (validate) ta flatMap (_ validate sy) else ta
   }
 }

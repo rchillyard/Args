@@ -484,6 +484,21 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     say.get.validate(new SynopsisParser().parseOptionalSynopsis(None)) shouldBe Success(say.get)
   }
 
+  it should "skip validation when validate = false is passed to parse, even though the synopsis is violated" in {
+    // "-xf filename" declares both -x and -f as mandatory, but only -f is supplied; with the
+    // default (validate = true) this would fail. With validate = false, parse still uses the
+    // synopsis to pair -f with its value correctly, but does not enforce the mandatory-option rule.
+    val say = Args.parse(Array(cmdF, argFilename), Some("-xf filename"), validate = false)
+    say shouldBe Success(Args.create(Arg("f", argFilename)))
+  }
+
+  it should "allow deferred validation after parsing with validate = false" in {
+    val synopsis = "-xf filename"
+    val say = Args.parse(Array(cmdF, argFilename), Some(synopsis), validate = false)
+    say should matchPattern { case Success(_) => }
+    say.get.validate(synopsis) should matchPattern { case Failure(_) => }
+  }
+
 }
 
 case class NotImplemented(str: String) extends Exception(s"Not Implemented for $str")

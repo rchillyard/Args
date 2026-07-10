@@ -127,6 +127,14 @@ There is another method for parsing which doesn't require POSIX-style and so can
     val args = Array("-f", "argFilename", "operand")
     val say: Try[Args[String]] = Args.parseSimple(args)
 
+If you want *parse* to still use the synopsis to guide flag/value pairing but defer the mandatory-option/arity
+check to a later, explicit call, pass `validate = false` and call *validate* yourself when you're ready:
+
+    val args = Array("-f", "argFilename", "operand")
+    val say: Try[Args[String]] = Args.parse(args, Some("-f filename operand"), validate = false)
+    // ... later ...
+    val validated: Try[Args[String]] = say.get.validate("-f filename operand")
+
 Once parsed and validated, an *Args* object can be processed by invoking the *process* method with a
 map of "name"->function pairs.
 The signature of the *process* method is:
