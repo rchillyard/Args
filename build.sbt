@@ -2,44 +2,14 @@ organization := "com.phasmidsoftware"
 
 name := "Args"
 
-version := "1.0.4-SNAPSHOT"
+version := "2.0.0-SNAPSHOT"
 
-scalaVersion := "2.13.7"
+scalaVersion := "3.3.8"
 
-crossScalaVersions := Seq("2.10.7","2.11.12","2.12.11","2.13.6")
-
-scalacOptions += "-deprecation"
-
-val scalaModules = "org.scala-lang.modules"
-val scalaParser = "scala-parser-combinators"
-
-val scalaTestGroup = "org.scalatest"
-val scalaTestArt = "scalatest"
-
-lazy val scalaParserVersion = "1.1.2"
-lazy val scalaTestVersion = SettingKey[String]("scalaTestVersion")
-
-scalaTestVersion := (scalaBinaryVersion.value match {
-  case "2.10" => "2.2.6"
-  case "2.11" => "3.0.1"
-  case "2.12" => "3.0.5"
-  case "2.13" => "3.2.9"
-})
-
-libraryDependencies ++= (scalaBinaryVersion.value match {
-  case "2.13" =>   Seq(
-    scalaModules %% scalaParser % scalaParserVersion
-  )
-  case "2.12" =>   Seq(
-    scalaModules %% scalaParser % scalaParserVersion
-  )
-  case "2.11" =>   Seq(
-    scalaModules %% scalaParser % scalaParserVersion
-  )
-  case _ => Seq()
-})
+scalacOptions ++= Seq("-deprecation", "-feature")
 
 libraryDependencies ++= Seq(
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
   "com.novocode" % "junit-interface" % "0.11" % "test",
-  scalaTestGroup %% scalaTestArt % scalaTestVersion.value % "test"
+  "org.scalatest" %% "scalatest" % "3.2.19" % "test"
 )

@@ -22,7 +22,7 @@ case class ValidationException[X](a: Args[X], s: Synopsis) extends ArgsException
 
 case class InvalidOptionException[X](arg: Arg[X]) extends ArgsException(s"Arg ${arg.name} not valid")
 
-case class CompareException(str: String) extends ArgsException(s"Arg compare exception: $str")
+case class NoMatchException(str: String) extends ArgsException(s"no match for: $str")
 
 case class NoOptionInSynopsisException(str: String) extends ArgsException(s"parse error: option $str was not found in synopsis")
 

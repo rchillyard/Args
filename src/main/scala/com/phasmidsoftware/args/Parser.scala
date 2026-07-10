@@ -24,18 +24,17 @@ class Parser extends RegexParsers {
   }
 
   /**
-    * NOTE that it is impossible to tell whether the first arg after an option set is an option value or the first operand.
-    * Only validating it with a command line synopsis can do that for sure.
+    * NOTE that this grammar classifies each raw token independently as either an option-string
+    * (dash followed by alphanumerics) or an operand, without eagerly pairing an option with the
+    * token that follows it. Whether a following token is actually consumed as an option's value
+    * (rather than being left as a separate operand) can only be determined once the synopsis is
+    * known, so that decision is deferred to the synopsis-aware processing in Args.doParse.
     *
     * @return
     */
-  def posixCommandLine: Parser[Seq[PosixArg]] = rep(posixOptionSet) ~ rep(posixOperand) ^^ { case pss ~ ps => pss.flatten ++ ps }
-
-  def posixOptionSet: Parser[Seq[PosixArg]] = posixOptions ~ opt(posixOptionValue) ^^ { case p ~ po => p +: po.toSeq }
+  def posixCommandLine: Parser[Seq[PosixArg]] = rep(posixOptions | posixOperand)
 
   def posixOptions: Parser[PosixArg] = "-" ~> """[a-zA-Z0-9]+""".r <~ terminator ^^ (s => PosixOptionString(s))
-
-  def posixOptionValue: Parser[PosixArg] = nonOption ^^ (s => PosixOptionValue(s))
 
   def posixOperand: Parser[PosixArg] = nonOption ^^ (s => PosixOperand(s))
 
@@ -59,13 +58,6 @@ trait PosixArg {
   * @param value the string of options, without the "-" prefix.
   */
 case class PosixOptionString(value: String) extends PosixArg
-
-/**
-  * The value of the preceding option.
-  *
-  * @param value a String
-  */
-case class PosixOptionValue(value: String) extends PosixArg
 
 /**
   * The value of an operand, i.e. a String which follows all of the options and their values.
@@ -147,6 +139,15 @@ case class Synopsis(es: Seq[Element]) {
     * @return Seq[String]
     */
   def operands: Seq[String] = es.flatMap(e => e.asOperand)
+
+  /**
+    * Method to get the arity of the operands declared by this synopsis.
+    *
+    * @return a tuple of (minimum, maximum) operand count: the minimum is the number of mandatory
+    *         (unwrapped) Operand elements; the maximum is the total number of operand elements,
+    *         mandatory and optional.
+    */
+  def operandArity: (Int, Int) = (es.collect { case Operand(x) => x }.size, operands.size)
 }
 
 /**
@@ -217,9 +218,12 @@ class SynopsisParser extends RegexParsers {
     * A "synopsis" of command-line options and their potential argument values.
     * It matches a dash ('-') followed by a list of optionalOrRequiredElement OR: an optional list of flagWithOrWithoutValue
     *
+    * NOTE that consecutive flagGroups may be separated by whitespace, e.g. "-xf filename -p number" declares
+    * two separate flagGroups ("-xf filename" and "-p number") rather than one.
+    *
     * @return a Parser[Seq[Element]
     */
-  def synopsis: Parser[Seq[Element]] = rep(flagGroup) ~ opt(operands) ^^ { case x ~ oo => x.flatten ++ oo.toSeq.flatten }
+  def synopsis: Parser[Seq[Element]] = rep(opt(whiteSpace) ~> flagGroup) ~ opt(operands) ^^ { case x ~ oo => x.flatten ++ oo.toSeq.flatten }
 
   def operands: Parser[Seq[Element]] = rep(opt(whiteSpace) ~> operand) ~ rep(opt(whiteSpace) ~> optionalOperand) ^^ { case x ~ y => x ++ y }
 
@@ -264,7 +268,6 @@ class SynopsisParser extends RegexParsers {
   def flagWithOrWithoutValue: Parser[Element] = (flag ~ optionalValue | flag ~ value | flag) ^^ {
     case o: Element => o
     case (o: Element) ~ (v: Element) => FlagWithValue(o.value, v)
-    case _ => throw new Exception("")
   }
 
   /**
@@ -300,13 +303,14 @@ class SynopsisParser extends RegexParsers {
   val valueToken2: Parser[String] = """\p{Lu}[^\[\]\s]*""".r
 
   /**
-    * A valueToken1 matches at least one non-space, non-bracket symbol
-    *
-    * CONSIDER should not allow "-"
+    * A valueToken1 matches at least one non-space, non-bracket symbol, the first of which is also not "-".
+    * Excluding a leading "-" ensures that a token which looks like a flag (e.g. "-f") is never
+    * swallowed as the literal value of the preceding flag; instead, it is left for a subsequent
+    * flagGroup to parse as a new flag.
     *
     * @return a Parser[String]
     */
-  val valueToken1: Parser[String] = """[^\[\]\s]+""".r
+  val valueToken1: Parser[String] = """[^\[\]\s-][^\[\]\s]*""".r
 
   /**
     * A operandToken matches at least one non-space, non-dash, non-bracket symbol

@@ -75,16 +75,6 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   def mapMap[Y](f: X => Option[Y]): Arg[Y] = Arg(name, value flatMap f)
 
   /**
-    * Method to map this Arg into an Arg of underlying type Y but where the function given is Option[X] => Option[Y]
-    *
-    * @param f a function to convert an Option[X] into an Option[Y].
-    * @tparam Y the underlying type of the result.
-    * @return an Arg[Y]
-    */
-  @deprecated
-  def mapMapOption[Y](f: Option[X] => Option[Y]): Arg[Y] = Arg(name, f(value))
-
-  /**
     * Method to flatMap this Arg into an Arg of underlying type Y
     *
     * @param f a function to convert an X into a Y.
@@ -103,7 +93,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
     * @return an Arg[Y].
     */
-  def as[Y: Derivable]: Arg[Y] = mapMap[Y](implicitly[Derivable[Y]].deriveFromOpt[X](_))
+  def as[Y: Derivable]: Arg[Y] = mapMap[Y](summon[Derivable[Y]].deriveFromOpt[X](_))
 
   /**
     * Convert this Arg[X] to an Arg of Either[Y].
@@ -112,7 +102,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
     * @return an Arg of Either[Y]..
     */
-  def eitherOr[Y: Derivable]: Arg[Either[X, Y]] = map[Option[Y]](implicitly[Derivable[Y]].deriveFromOpt(_)) match {
+  def eitherOr[Y: Derivable]: Arg[Either[X, Y]] = map[Option[Y]](summon[Derivable[Y]].deriveFromOpt(_)) match {
     case Arg(no, Some(Some(y))) => Arg(no, Some(Right(y)))
     case _ => Arg(name, value map (Left(_)))
   }
@@ -144,7 +134,7 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
     * @return the result of deriving a Y value from the actual value of this Arg, wrapped in Try.
     */
   def toY[Y: Derivable]: Try[Y] = value match {
-    case Some(x) => implicitly[Derivable[Y]].deriveFromOpt(x) match {
+    case Some(x) => summon[Derivable[Y]].deriveFromOpt(x) match {
       case Some(y) => Success(y)
       case None => Failure(MapException("cannot map from X to Y"))
     }
@@ -182,17 +172,19 @@ case class Arg[X](name: Option[String], value: Option[X]) extends Ordered[Arg[X]
   /**
     * Method to compare this Arg with that.
     *
-    * TEST this method.
+    * This is a total order: two named Args (options) compare by name (their values are
+    * intentionally not significant, since ordering exists only to match Args against a
+    * Synopsis); an unnamed Arg (operand) always sorts after a named one, matching the POSIX
+    * convention that options precede operands; two unnamed Args compare equal.
     *
     * @param that the Arg to compare with.
-    * @return the result of invoking x compare y where x and y are the values of this and that Args.
+    * @return the result of invoking x compare y where x and y are the names of this and that Args.
     */
-  def compare(that: Arg[X]): Int = name match {
-    case Some(x) => that.name match {
-      case Some(y) => x compare y
-      case None => throw CompareException(s"$this vs $that")
-    }
-    case None => throw CompareException(s"$this vs $that")
+  def compare(that: Arg[X]): Int = (name, that.name) match {
+    case (Some(x), Some(y)) => x compare y
+    case (Some(_), None) => -1
+    case (None, Some(_)) => 1
+    case (None, None) => 0
   }
 }
 
@@ -213,17 +205,6 @@ object Arg {
     * @return v valueless Arg[String] with name w and value v.
     */
   def apply(w: String, v: String): Arg[String] = Arg(Some(w), Some(v))
-  //
-  //  def multiply(x: Int, y: Int): Int = x * y
-  //  val identity: Int => Int = 1 * _
-  //
-  //  val string: Any => String = _.toString
-  //
-  //  val f = println _
-  //
-  //  val z = new (Int => String) { def apply(x: Int): String = x.toString }
-  //
-  //  f(string(identity(42)))
 }
 
 case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
@@ -266,13 +247,18 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * CONSIDER using lift
     * CONSIDER using map/recover on sy
     *
-    * @param sy the optional Synopsis.
-    * @return this, wrapped in Success, provided that the sy is not a Failure and that the result of calling validate(Synopsis) is true.
+    * @param sy the optional Synopsis, as produced by SynopsisParser.parseOptionalSynopsis.
+    * @return this, wrapped in Success, provided that no synopsis was given, or the synopsis was given and
+    *         parsed successfully and the result of calling validate(Synopsis) is true.
+    *         If a synopsis string was given but could not be parsed (a Failure other than the
+    *         NoSuchElementException used by parseOptionalSynopsis to signal "no synopsis given"),
+    *         that Failure is propagated rather than being silently treated as "nothing to validate".
     */
   def validate(sy: Try[Synopsis]): Try[Args[X]] = // for (s <- sy; b <- validate(s) if b) yield this
     sy match {
       case Success(s) => if (doValidation(s)) Success(this) else Failure(ValidationException(this, s))
-      case _ => Success(this)
+      case Failure(_: NoSuchElementException) => Success(this)
+      case Failure(e) => Failure(e)
     }
 
   /**
@@ -322,7 +308,7 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * @tparam Y the underlying type of the result, such that there is evidence of a Derivable[Y] provided implicitly.
     * @return an Args[Y].
     */
-  def as[Y: Derivable]: Args[Y] = mapOption[Y](implicitly[Derivable[Y]].deriveFromOpt[X](_))
+  def as[Y: Derivable]: Args[Y] = mapOption[Y](summon[Derivable[Y]].deriveFromOpt[X](_))
 
   /**
     * Get the options (i.e. args with names) as map of names to (optional) values
@@ -436,59 +422,56 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
     * Method to process one Arg and return the remainder of the arguments as an Args.
     *
     * @param f a partially-defined function which can process the arg.
-    * @return if f is defined for the Arg, then return the remainder; otherwise return this as is.
-    * @throws MatchError         if the head Arg does not match function f.
-    * @throws EmptyArgsException if this Args is empty.
+    * @return a Success of the remainder if f is defined for the head Arg;
+    *         a Failure(NoMatchException) if f is not defined for the head Arg;
+    *         a Failure(EmptyArgsException) if this Args is empty.
     */
-  def matchAndShift(f: PartialFunction[Arg[X], Unit]): Args[X] = matchAndShiftOrElse(f)(throw new MatchError("matchAndShift"))
+  def matchAndShift(f: PartialFunction[Arg[X], Unit]): Try[Args[X]] = xas match {
+    case Nil => Failure(EmptyArgsException)
+    case xa :: tail => if (f.isDefinedAt(xa)) Try {
+      f(xa)
+      Args(tail)
+    } else Failure(NoMatchException(xa.toString))
+  }
 
   /**
     * Method to process one Arg and return the remainder of the arguments as an Args.
-    * In this form of the method, a failure to match by function f will result in the default value being returned.
+    * In this form of the method, a failure to match by function f (including an empty Args) will
+    * result in the default value being returned, rather than a failure.
     *
     * @param f       a partially-defined function which can process the arg.
-    * @param default a call-by-name value which will be returned in the event that function f is not defined for the actual Arg at the head of the list.
+    * @param default a call-by-name value which will be returned in the event that matchAndShift does not succeed.
     * @return if f is defined for the Arg, then return the remainder; otherwise return the result of invoking default.
-    * @throws EmptyArgsException if this Args is empty.
     */
-  def matchAndShiftOrElse(f: PartialFunction[Arg[X], Unit])(default: => Args[X]): Args[X] = xas match {
-    case xa :: tail => if (f.isDefinedAt(xa)) {
-      f(xa)
-      Args(tail)
-    } else default
-    case Nil => throw EmptyArgsException
-  }
+  def matchAndShiftOrElse(f: PartialFunction[Arg[X], Unit])(default: => Args[X]): Args[X] = matchAndShift(f).getOrElse(default)
 
   override def toString(): String = xas.mkString("; ")
 
   /**
-    * Apply the given function f, using mapMapOption, to each Arg of this Args.
-    *
-    * @param f a function of type Option[X] => Option[Y].
-    * @tparam Y the result type of the function f
-    * @return an Args[Y] object
-    */
-  //noinspection ScalaDeprecation
-  @deprecated
-  def mapMapOption[Y](f: Option[X] => Option[Y]): Args[Y] =
-    Args(for (xa <- xas) yield xa.mapMapOption(f))
-
-  /**
     * Method to validate this Args according to the given Synopsis.
     *
+    * Checks that the mandatory options declared by the synopsis are all present (safe: `Arg.compare`
+    * is a total order, so sorting the mandatory Args by name can never throw), and that the number of
+    * operands falls within the range of mandatory/optional operands declared by the synopsis.
+    *
     * @param s the Synopsis.
-    * @return Success(true) if all the Arg elements of this are compatible with the synopsis.
+    * @return true if all the Arg elements of this are compatible with the synopsis.
     */
   private def doValidation(s: Synopsis): Boolean = {
-    val (m, _) = s.mandatoryAndOptionalElements
-    // NOTE: the following will throw an exception if any Arg is invalid (really?)
+    val (mandatoryElements, _) = s.mandatoryAndOptionalElements
+    // mandatoryAndOptionalElements partitions *all* synopsis elements, including operands; only the
+    // flag/option elements are relevant here, since operand arity is checked separately below.
+    val m = mandatoryElements.filterNot(_.asOperand.isDefined)
     val (_, mandatory) = xas.filter(_.isOption).partition(_.isOptional(s).toBoolean(false))
-    if (m.size == mandatory.size) {
+    val optionsValid = if (m.size == mandatory.size) {
       val bs = for (z <- m.sorted zip mandatory.sorted; name <- z._2.name) yield (z._1.value compare name) == 0
       bs.forall(_ == true)
     }
     else
       false
+    val (minOperands, maxOperands) = s.operandArity
+    val operandsValid = operands.size >= minOperands && operands.size <= maxOperands
+    optionsValid && operandsValid
   }
 }
 
@@ -548,7 +531,7 @@ object Args {
     */
   def parse(args: Array[String], synopsis: Option[String] = None, optionalProgramName: Option[String] = None): Try[Args[String]] = {
     optionalProgramName.foreach(name => System.err.println(s"""$name: ${showArgs(args)}"""))
-    doParse((new Parser).parseCommandLine(args), synopsis)
+    doParse((new Parser).parseCommandLine(args.toIndexedSeq), synopsis)
   }
 
   /**
@@ -590,47 +573,76 @@ object Args {
   private def doParse(ps: => Seq[PosixArg], wo: Option[String] = None): Try[Args[String]] = {
     val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
-    def processPosixArg(p: PosixArg): Seq[PosixArg] = p match {
-      case PosixOptionString(w) =>
-        sy match {
-          case Success(s) =>
-            val cEm: Map[Char, Element] = prune(for (c <- w) yield c -> s.find(Some(c.toString)))
-
-            def inner2(ws: Seq[PosixArg], cs: List[Char]): Seq[PosixArg] = cs match {
-              case Nil => ws
-              case c :: tail =>
-                cEm.get(c) match {
-                  case Some(e) =>
-                    @scala.annotation.tailrec
-                    def processElement(e: Element): Seq[PosixArg] = e match {
-                      case OptionalElement(x) => processElement(x)
-                      case FlagWithValue(_, OptionalElement(_)) => ws ++ Seq(PosixOptionString(c.toString), PosixOptionValue(tail.mkString("")))
-                      case _ => inner2(ws :+ PosixOptionString(c.toString), tail)
-                    }
-                    processElement(e)
-                  case _ => throw NoOptionInSynopsisException(c.toString)
-                }
-            }
-
-            inner2(Seq(), w.toList)
-          case _ =>
-            for (c <- w) yield PosixOptionString(c.toString)
-        }
-      case x => Seq(x)
+    // Method to unwrap an Element down to its "core" and determine whether it declares a
+    // mandatory (non-optional) value component, i.e. one which must appear as a separate
+    // following token (an optional value, by contrast, is only ever honored when fused into
+    // the same token as its flag, e.g. "-fvalue" rather than "-f value").
+    @scala.annotation.tailrec
+    def hasMandatoryValue(e: Element): Boolean = e match {
+      case OptionalElement(x) => hasMandatoryValue(x)
+      case FlagWithValue(_, OptionalElement(_)) => false
+      case FlagWithValue(_, _) => true
+      case _ => false
     }
+
+    // Method to expand a (possibly combined) option-string token, e.g. "xf", into individual
+    // flag Args, one per character. Where the synopsis declares an optional value for a flag,
+    // any remaining characters of the same token are consumed as that flag's fused value (per
+    // POSIX, an optional value must be fused; a mandatory value never is, and is instead looked
+    // for in the following raw token--see wantsSeparateValue below).
+    def expandOptionString(w: String): Seq[Arg[String]] = sy match {
+      case Success(s) =>
+        val cEm: Map[Char, Element] = prune(for (c <- w) yield c -> s.find(Some(c.toString)))
+
+        @scala.annotation.tailrec
+        def inner2(r: Seq[Arg[String]], cs: List[Char]): Seq[Arg[String]] = cs match {
+          case Nil => r
+          case c :: tail =>
+            cEm.get(c) match {
+              case Some(e) =>
+                @scala.annotation.tailrec
+                def processElement(e: Element): Seq[Arg[String]] = e match {
+                  case OptionalElement(x) => processElement(x)
+                  case FlagWithValue(_, OptionalElement(_)) => r :+ Arg(c.toString, tail.mkString(""))
+                  case _ => inner2(r :+ Arg(c.toString), tail)
+                }
+                processElement(e)
+              case None => throw NoOptionInSynopsisException(c.toString)
+            }
+        }
+
+        inner2(Seq(), w.toList)
+      case _ =>
+        for (c <- w) yield Arg(c.toString)
+    }
+
+    // Method to determine whether the trailing flag of an expanded option-string token (flags)
+    // should consume the *next* raw token (from the overall command line, not the same token) as
+    // its value. This is only true if that trailing flag doesn't already have a (fused) value, and:
+    //   - there is no (usable) synopsis, in which case we fall back to the permissive legacy
+    //     behavior of always pairing a bare flag with whatever token follows it; or
+    //   - the synopsis declares a mandatory value component for that trailing flag.
+    def wantsSeparateValue(w: String, flags: Seq[Arg[String]]): Boolean =
+      flags.lastOption.exists(_.value.isEmpty) && (sy match {
+        case Success(s) => s.find(Some(w.last.toString)).exists(hasMandatoryValue)
+        case _ => true
+      })
 
     @scala.annotation.tailrec
-    def inner(r: Seq[Arg[String]], w: Seq[PosixArg]): Seq[Arg[String]] = w match {
+    def loop(r: Seq[Arg[String]], w: Seq[PosixArg]): Seq[Arg[String]] = w match {
       case Nil => r
-      case PosixOptionString(o) :: PosixOptionValue(v) :: t => inner(r :+ Arg(o, v), t)
-      case PosixOptionString(o) :: t => inner(r :+ Arg(o), t)
-      case PosixOperand(o) :: t => inner(r :+ Arg(None, Some(o)), t)
-      // TODO figure out how to deal with this properly
-      case PosixOptionValue(o) :: t => inner(r :+ Arg(None, Some(o)), t)
-      case _ => throw ParseException(s"inner: failed to match $w")
+      case PosixOptionString(o) :: t =>
+        val flags = expandOptionString(o)
+        t match {
+          case PosixOperand(v) :: rest if wantsSeparateValue(o, flags) =>
+            loop(r ++ flags.init :+ flags.last.copy(value = Some(v)), rest)
+          case _ =>
+            loop(r ++ flags, t)
+        }
+      case PosixOperand(o) :: t => loop(r :+ Arg(None, Some(o)), t)
+      case _ => throw ParseException(s"loop: failed to match $w")
     }
 
-    lazy val as = (for (p <- ps) yield processPosixArg(p)).flatten
-    Try(Args(inner(Seq(), as))) flatMap (_ validate sy)
+    Try(Args(loop(Seq(), ps))) flatMap (_ validate sy)
   }
 }
