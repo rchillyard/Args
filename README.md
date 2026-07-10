@@ -1,5 +1,6 @@
 # Args
 
+![Sonatype Central](https://maven-badges.sml.io/sonatype-central/com.phasmidsoftware/args_2.13/badge.svg?color=blue)
 [![args Scala version support](https://index.scala-lang.org/rchillyard/args/args/latest-by-scala-version.svg)](https://index.scala-lang.org/rchillyard/args/args)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/78b1a73d5903494c87d950f9e2f7addf)](https://www.codacy.com/gh/rchillyard/Args/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rchillyard/Args&amp;utm_campaign=Badge_Grade)
 [![CircleCI](https://circleci.com/gh/rchillyard/Args.svg?style=shield)](https://circleci.com/gh/rchillyard/Args)
@@ -10,6 +11,10 @@
 ![GitHub issues by-label](https://img.shields.io/github/issues/rchillyard/Args/bug)
 
 This library is to make it easy to use and verify command line arguments in Scala programs
+
+## API Documentation
+
+Full Scaladoc is available via [javadoc.io](https://javadoc.io/doc/com.phasmidsoftware/args_2.13).
 
 ## Introduction
 *Args* provides a mechanism for parsing, validating, and processing a set of command line arguments.
