@@ -69,28 +69,14 @@ class ParserSpec extends flatspec.AnyFlatSpec with should.Matchers {
     pp should matchPattern { case p.Success(_, _) => }
   }
 
-  it should "parse option value from -argFilename;" in {
-    val p = new Parser
-    val pp: p.ParseResult[PosixArg] = p.parseAll(p.posixOptionValue, "argFilename;")
-    pp should matchPattern { case p.Success(_, _) => }
-  }
-
-  it should "parse option set from -xf;argFilename" in {
-    val p = new Parser
-    val pp: p.ParseResult[Seq[PosixArg]] = p.parseAll(p.posixOptionSet, "-xf;argFilename;")
-    pp should matchPattern { case p.Success(_, _) => }
-    pp.get.size shouldBe 2
-    pp.get.head shouldBe PosixOptionString("xf")
-    pp.get.last shouldBe PosixOptionValue("argFilename")
-  }
-
   it should """parseCommandLine "-xf argFilename 3.1415927"""" in {
+    // NOTE: the raw grammar no longer eagerly pairs an option with the token that follows it--
+    // every token is classified independently as either an option-string or an operand. Deciding
+    // whether "argFilename" is actually consumed as a flag's value (as opposed to being a bare
+    // operand) requires knowledge of the synopsis, which only Args.doParse has; see ArgsSpec.
     val p = new Parser
     val as: Seq[PosixArg] = p.parseCommandLine(Seq("-xf", "argFilename", "3.1415927"))
-    as.size shouldBe 3
-    as.head shouldBe PosixOptionString("xf")
-    as.tail.head shouldBe PosixOptionValue("argFilename")
-    as.last shouldBe PosixOperand("3.1415927")
+    as shouldBe Seq(PosixOptionString("xf"), PosixOperand("argFilename"), PosixOperand("3.1415927"))
   }
 
   behavior of "SynopsisParser"
@@ -125,6 +111,11 @@ class ParserSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val p = new SynopsisParser
     val wr = p.parse(p.valueToken2, "Junk")
     wr should matchPattern { case p.Success("Junk", _) => }
+  }
+  it should "not parse -f as a valueToken1 (regression: a flag-like token must never be swallowed as a value)" in {
+    val p = new SynopsisParser
+    val cr = p.parse(p.valueToken1, "-f")
+    cr should matchPattern { case p.Failure(_, _) | p.Error(_, _) => }
   }
   it should "parse Junk as ValueToken" in {
     val p = new SynopsisParser
@@ -242,12 +233,40 @@ class ParserSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val s = p.parseSynopsis("-x[f[ filename]] first [second]")
     s shouldBe Synopsis(List(Flag("x"), OptionalElement(FlagWithValue("f", OptionalElement(Value("filename")))), Operand("first"), OptionalElement(Operand("second"))))
   }
+  it should "parse -x -f filename as two separate flag groups (regression: 'x' must not swallow '-f' as its literal value)" in {
+    val p = new SynopsisParser
+    val s = p.parseSynopsis("-x -f filename")
+    s shouldBe Synopsis(List(Flag("x"), FlagWithValue("f", Value("filename"))))
+  }
+  it should "parse -xf filename -p number as two whitespace-separated flag groups (regression: multiple '-'-prefixed groups must be supported)" in {
+    val p = new SynopsisParser
+    val s = p.parseSynopsis("-xf filename -p number")
+    s shouldBe Synopsis(List(Flag("x"), FlagWithValue("f", Value("filename")), FlagWithValue("p", Value("number"))))
+  }
 
   behavior of "parseOptionalSynopsis"
   it should "parse -x[f filename] as a synopsis" in {
     val p = new SynopsisParser
     val so: Try[Synopsis] = p.parseOptionalSynopsis(Some("-x[f filename]"))
     so shouldBe Success(Synopsis(Seq(Flag("x"), OptionalElement(FlagWithValue("f", Value("filename"))))))
+  }
+
+  behavior of "Synopsis.operandArity"
+  it should "be (0, 0) when no operands are declared" in {
+    val p = new SynopsisParser
+    p.parseSynopsis("-x[f filename]").operandArity shouldBe(0, 0)
+  }
+  it should "be (1, 1) for a single mandatory operand" in {
+    val p = new SynopsisParser
+    p.parseSynopsis("-x[f filename] first").operandArity shouldBe(1, 1)
+  }
+  it should "be (1, 2) for a mandatory operand followed by an optional one" in {
+    val p = new SynopsisParser
+    p.parseSynopsis("-x[f filename] first [second]").operandArity shouldBe(1, 2)
+  }
+  it should "be (0, 1) for a single optional operand" in {
+    val p = new SynopsisParser
+    p.parseSynopsis("-x[f filename] [first]").operandArity shouldBe(0, 1)
   }
 
 }

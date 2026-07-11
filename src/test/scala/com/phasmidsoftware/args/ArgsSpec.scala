@@ -9,6 +9,7 @@ import org.scalatest.matchers.should
 
 import java.io.File
 import java.net.URL
+import scala.collection.mutable
 import scala.util.{Failure, Success}
 
 class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
@@ -90,7 +91,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "process " + sX + ": append" in {
-    val sb = new StringBuilder
+    val sb = new mutable.StringBuilder
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit]({ x => sb.append(x) }))
     val target = Arg(sX, s1)
     val result = target.process(processor)
@@ -99,7 +100,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   }
 
   it should "not process " + sY + ": append" in {
-    val sb = new StringBuilder
+    val sb = new mutable.StringBuilder
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { x => sb.append(x) })
     val target = Arg(sY, s1)
     val result = target.process(processor)
@@ -111,8 +112,17 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     target.compare(Arg(sY, s1)) shouldBe 0
     target.compare(Arg(sX, s1)) shouldBe 1
     target.compare(Arg("z", s1)) shouldBe -1
-    // CONSIDER is it correct that the value is not significant to compare?
+    // value is intentionally not significant to compare
     target.compare(Arg(sY, "2")) shouldBe 0
+  }
+
+  it should "compare safely when an operand is involved (no longer throws)" in {
+    val option = Arg(sX, s1)
+    val operand = Arg[String](None, Some(s1))
+    val otherOperand = Arg[String](None, Some(sY))
+    option.compare(operand) shouldBe -1
+    operand.compare(option) shouldBe 1
+    operand.compare(otherOperand) shouldBe 0
   }
 
   it should "hasValue properly" in {
@@ -127,6 +137,11 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     target.size shouldBe 1
     target.head.name shouldBe Some(sX)
     target.head.value shouldBe Some(s1)
+  }
+
+  it should "showArgs" in {
+    val args = Array("-x", "1")
+    Args.showArgs(args) shouldBe "-x 1"
   }
 
   it should "implement :+" in {
@@ -159,6 +174,12 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     val target = Args.create(Arg(sX, s1))
     val result: Args[Int] = target.map(xa => xa.map(_.toInt))
     result.head.value shouldBe Some(x1)
+  }
+
+  it should "implement flatMap" in {
+    val target = Args.create(Arg(sX, s1))
+    val result: Args[String] = target.flatMap(xa => Args.singleton(xa))
+    result.head.value shouldBe Some(s1)
   }
 
   it should "implement getArg with good name" in {
@@ -218,7 +239,11 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   it should "do implement matchAndShift 1" in {
     val sa: Args[String] = Args.make(Array("-f", "argFilename", "3.1415927"))
-    a[MatchError] shouldBe thrownBy(sa.matchAndShift { case Arg(None, None) => })
+    sa.matchAndShift { case Arg(None, None) => } should matchPattern { case Failure(NoMatchException(_)) => }
+  }
+
+  it should "fail matchAndShift on an empty Args" in {
+    Args.empty[String].matchAndShift { case _ => } should matchPattern { case Failure(EmptyArgsException) => }
   }
 
   it should "toString" in {
@@ -230,9 +255,9 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   it should "do implement matchAndShift 2" in {
     val sa: Args[String] = Args.make(Array("-f", "argFilename", "3.1415927"))
     println(sa.matchAndShift { case Arg(Some(name), Some(file)) => println(s"$name $file") })
-    sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => println("f argFilename") } shouldBe Args(List(Arg(None, Some("3.1415927"))))
-    val z: Args[Double] = sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.mapMap(_.toDouble)
-    z.matchAndShift { case Arg(None, Some(3.1415927)) => println("3.1415927") } shouldBe Args(List())
+    sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => println("f argFilename") } shouldBe Success(Args(List(Arg(None, Some("3.1415927")))))
+    val z: Args[Double] = sa.matchAndShift { case Arg(Some("f"), Some("argFilename")) => }.get.mapMap(_.toDouble)
+    z.matchAndShift { case Arg(None, Some(3.1415927)) => println("3.1415927") } shouldBe Success(Args(List()))
   }
 
   it should "do implement matchAndShiftOrElse" in {
@@ -240,9 +265,13 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     sa.matchAndShiftOrElse { case Arg(None, None) => }(Args.empty) shouldBe Args.empty
   }
 
+  it should "fall back to default on matchAndShiftOrElse with an empty Args (previously threw EmptyArgsException)" in {
+    Args.empty[String].matchAndShiftOrElse { case _ => }(Args.singleton(Arg(sX, s1))) shouldBe Args.singleton(Arg(sX, s1))
+  }
+
   it should "process " + sX + ": append" in {
     val sA = "a"
-    val sb = new StringBuilder
+    val sb = new mutable.StringBuilder
     val processor = Map[String, Option[String] => Unit](sX.->[Option[String] => Unit] { case Some(x) => sb.append(x); case _ => })
     val target = Args.create(Arg(sX, s1), Arg(sX, sA))
     val result = target.process(processor)
@@ -312,6 +341,13 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     value shouldBe Some("argFilename")
   }
 
+  it should """implement getArgValueEitherOr("f")""" in {
+    val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("f"), Some("argFilename")), Arg(Some("d"), Some("3.1415927"))))
+    sa.getArgValueEitherOr[Double]("x") shouldBe None
+    sa.getArgValueEitherOr[Double]("f") shouldBe Some(Left("argFilename"))
+    sa.getArgValueEitherOr[Double]("d") shouldBe Some(Right(3.1415927))
+  }
+
   it should """implement getArgValueAs("f")""" in {
     val sa = Args[String](Seq(Arg(Some("x"), None), Arg(Some("n"), Some("1")), Arg(None, Some("3.1415927"))))
     val value: Option[Int] = sa.getArgValueAs[Int]("n")
@@ -351,19 +387,22 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
   behavior of "Args validation"
   it should "parse " + cmdF + " " + argFilename in {
     val args = Array(cmdF, argFilename, "positionalArg")
-    val asy = Args.parse(args, Some(cmdF + " " + "filename"))
+    val asy = Args.parse(args, Some(cmdF + " " + "filename" + " operand"))
     asy should matchPattern { case Success(Args(_)) => }
   }
 
   it should "parse " + cmdF + argFilename + " where filename is optional (1)" in {
+    // note: -f has an optional value but is given as a separate token here, so per POSIX
+    // convention (optional values must be fused, e.g. "-fvalue") it isn't consumed as f's value;
+    // both "argFilename" and "3.1415927" end up as operands.
     val args = Array(cmdF, argFilename, "3.1415927")
-    val asy = Args.parse(args, Some(cmdF + "[ filename" + "]"))
+    val asy = Args.parse(args, Some(cmdF + "[ filename" + "]" + " operand1 operand2"))
     asy should matchPattern { case Success(Args(_)) => }
   }
 
   it should "parse " + cmdF + argFilename + " where filename is optional (2)" in {
     val args = Array(cmdF + argFilename, "positionalArg")
-    val asy = Args.parse(args, Some(cmdF + "[ filename" + "]"))
+    val asy = Args.parse(args, Some(cmdF + "[ filename" + "]" + " operand"))
     asy should matchPattern { case Success(Args(_)) => }
   }
 
@@ -371,7 +410,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     a[ValidationException[String]] shouldBe thrownBy(Args.parse(Array(cmdF, argFilename), Some("-xf filename")).get)
   }
 
-  it should """implement validate(String)""" in {
+  it should """implement doValidation(String)""" in {
     val say = Args.parse(Array("-xf", "argFilename", "-p", "3.1415927"), optionalProgramName = Some("unit test"))
     say should matchPattern { case Success(_) => }
     val sa = say.get
@@ -379,8 +418,85 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
     say.get.validate("-xf filename -p number") shouldBe Success(sa)
   }
 
-  it should "validate -x[f[ filename]] as a synopsis for -xfargFilename" in {
+  it should "validate correctly when all mandatory options are supplied out of alphabetical order (regression for the doValidation sort)" in {
+    val say = Args.parse(Array("-p", "3.1415927", "-x", "-f", "argFilename"), optionalProgramName = Some("unit test"))
+    say should matchPattern { case Success(_) => }
+    say.get.validate("-xf filename -p number") shouldBe Success(say.get)
+  }
+
+  it should "reject too few operands against a synopsis requiring one" in {
+    a[ValidationException[String]] shouldBe thrownBy(Args.parse(Array(cmdF, argFilename), Some(cmdF + " filename operand")).get)
+  }
+
+  it should "reject too many operands against a synopsis declaring none" in {
+    a[ValidationException[String]] shouldBe thrownBy(Args.parse(Array(cmdF, argFilename, "extra"), Some(cmdF + " filename")).get)
+  }
+
+  it should "accept the maximum operand count when an operand is optional" in {
+    val asy = Args.parse(Array(cmdF, argFilename, "first", "second"), Some(cmdF + " filename first [second]"))
+    asy should matchPattern { case Success(Args(_)) => }
+  }
+
+  it should "accept the minimum operand count when an operand is optional" in {
+    val asy = Args.parse(Array(cmdF, argFilename, "first"), Some(cmdF + " filename first [second]"))
+    asy should matchPattern { case Success(Args(_)) => }
+  }
+
+  it should "reject exceeding the maximum operand count when an operand is optional" in {
+    a[ValidationException[String]] shouldBe thrownBy(Args.parse(Array(cmdF, argFilename, "first", "second", "third"), Some(cmdF + " filename first [second]")).get)
+  }
+
+  it should "doValidation -x[f[ filename]] as a synopsis for -xfargFilename" in {
     Args.parse(Array("-xfargFilename"), Some("-x[f[ filename]]")) shouldBe Success(Args.create(Arg("x"), Arg("f", "argFilename")))
+  }
+
+  it should "not swallow the token following a value-less flag as that flag's value" in {
+    // regression test: "v" is declared in the synopsis as a value-less optional flag, so the
+    // token that happens to follow it ("report.csv") must be left as a separate operand rather
+    // than being paired with "v" as a bogus value.
+    val asy = Args.parse(Array("-f", "input.txt", "-v", "report.csv"), Some("-f filename[v] operand"))
+    asy shouldBe Success(Args.create(Arg("f", "input.txt"), Arg("v"), Arg(None, Some("report.csv"))))
+  }
+
+  it should "recognize combined flags given as separate command-line tokens" in {
+    // regression test: previously "-f" was swallowed as a bogus value of "x" because the raw
+    // grammar eagerly paired any flag with the very next token regardless of the synopsis; now
+    // "x" (which the synopsis declares has no value) is left value-less, and "f" (which the
+    // synopsis declares has a mandatory value) correctly takes "README.md" as its value.
+    val asy = Args.parse(Array("-x", "-f", "README.md"), Some("-xf filename"))
+    asy shouldBe Success(Args.create(Arg("x"), Arg("f", "README.md")))
+  }
+
+  it should "propagate a synopsis parse failure via validate rather than silently treating it as nothing to validate" in {
+    // regression test: Args.validate used to swallow a Try[Synopsis] Failure (e.g. a malformed
+    // synopsis string that could not be parsed at all) as a trivial Success, masking the error.
+    // A malformed synopsis (here, an unclosed "[") must now surface as a Failure.
+    val say = Args.parse(Array("-x"), optionalProgramName = Some("unit test"))
+    say should matchPattern { case Success(_) => }
+    say.get.validate("-x[f filename") should matchPattern { case Failure(_) => }
+  }
+
+  it should "still trivially succeed validate when no synopsis is given at all" in {
+    // regression guard: distinguishing "no synopsis provided" (still trivially valid) from
+    // "synopsis provided but unparseable" (now a Failure, see above) must not regress.
+    val say = Args.parse(Array("-x"), optionalProgramName = Some("unit test"))
+    say should matchPattern { case Success(_) => }
+    say.get.validate(new SynopsisParser().parseOptionalSynopsis(None)) shouldBe Success(say.get)
+  }
+
+  it should "skip validation when validate = false is passed to parse, even though the synopsis is violated" in {
+    // "-xf filename" declares both -x and -f as mandatory, but only -f is supplied; with the
+    // default (validate = true) this would fail. With validate = false, parse still uses the
+    // synopsis to pair -f with its value correctly, but does not enforce the mandatory-option rule.
+    val say = Args.parse(Array(cmdF, argFilename), Some("-xf filename"), validate = false)
+    say shouldBe Success(Args.create(Arg("f", argFilename)))
+  }
+
+  it should "allow deferred validation after parsing with validate = false" in {
+    val synopsis = "-xf filename"
+    val say = Args.parse(Array(cmdF, argFilename), Some(synopsis), validate = false)
+    say should matchPattern { case Success(_) => }
+    say.get.validate(synopsis) should matchPattern { case Failure(_) => }
   }
 
 }
