@@ -1,0 +1,2065 @@
+<!DOCTYPE html><html data-pathToRoot="../../" data-rawLocation="com/phasmidsoftware/args" data-dynamicSideMenu="false"><head><meta charset="utf-8"></meta><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta><title>com.phasmidsoftware.args</title><link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico"></link><script type="text/javascript" src="../../scripts/theme.js"></script><script type="text/javascript" src="../../scripts/searchData.js" defer="true"></script><script type="text/javascript" src="../../scripts/scastieConfiguration.js" defer="true"></script><link rel="stylesheet" href="../../styles/theme/bundle.css"></link><link rel="stylesheet" href="../../styles/theme/components/bundle.css"></link><link rel="stylesheet" href="../../styles/theme/components/button/bundle.css"></link><link rel="stylesheet" href="../../styles/theme/layout/bundle.css"></link><link rel="stylesheet" href="../../styles/dotty-icons.css"></link><link rel="stylesheet" href="../../styles/filter-bar.css"></link><link rel="stylesheet" href="../../styles/searchbar.css"></link><link rel="stylesheet" href="../../styles/social-links.css"></link><link rel="stylesheet" href="../../styles/versions-dropdown.css"></link><link rel="stylesheet" href="../../styles/content-contributors.css"></link><script type="text/javascript" src="../../hljs/highlight.pack.js" defer="true"></script><script type="text/javascript" src="../../scripts/hljs-scala3.js" defer="true"></script><script type="text/javascript" src="../../scripts/ux.js" defer="true"></script><script type="text/javascript" src="../../scripts/common/component.js" defer="true"></script><script type="text/javascript" src="../../scripts/common/utils.js" defer="true"></script><script type="text/javascript" src="../../scripts/components/FilterBar.js" defer="true"></script><script type="text/javascript" src="../../scripts/components/DocumentableList.js" defer="true"></script><script type="text/javascript" src="../../scripts/components/Input.js" defer="true"></script><script type="text/javascript" src="../../scripts/components/FilterGroup.js" defer="true"></script><script type="text/javascript" src="../../scripts/components/Filter.js" defer="true"></script><script type="text/javascript" src="../../scripts/scaladoc-scalajs.js" defer="true"></script><script type="text/javascript" src="../../scripts/contributors.js" defer="true"></script><script type="text/javascript" src="https://d3js.org/d3.v6.min.js" defer="true"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/graphlib-dot@0.6.2/dist/graphlib-dot.min.js" defer="true"></script><script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dagre-d3/0.6.1/dagre-d3.min.js" defer="true"></script><script type="text/javascript" src="https://scastie.scala-lang.org/embedded.js" defer="true"></script><script type="text/javascript" src="../../scripts/data.js" defer="true"></script><script>var pathToRoot = "../../";</script></head><body><div id=""><div id="header" class="body-small"><div class="header-container-left"><a href="../../" class="logo-container"><span class="project-name h300">Args</span></a><span onclick="dropdownHandler(event)" class="text-button with-arrow" id="dropdown-trigger"><a></a></span><div id="version-dropdown" class="dropdown-menu"></div></div><div class="header-container-right"><button id="search-toggle" class="icon-button"></button><span id="theme-toggle" class="icon-button"></span><span id="mobile-menu-toggle" class="icon-button hamburger"></span></div></div><div id="mobile-menu"><div class="mobile-menu-header body-small"><span class="mobile-menu-logo"><span class="project-name h300">Args</span></span><button id="mobile-menu-close" class="icon-button close"></button></div><div class="mobile-menu-container body-medium"><input id="mobile-scaladoc-searchbar-input" class="scaladoc-searchbar-input" type="search" placeholder="Find anything"></input><span id="mobile-theme-toggle" class="mobile-menu-item mode"></span></div></div><span id="mobile-sidebar-toggle" class="floating-button"></span><div id="leftColumn" class="body-small"><div class="switcher-container"><a id="api-nav-button" class="switcher h100 selected" href="../../index.html">API</a></div><nav id="api-nav" class="side-menu"><div class="ni n0 expanded"><span class="nh h100 expanded cs"><button class="ar icon-button expanded"></button><a href="../phasmidsoftware.html"><span class="micon pa"></span><span>com.phasmidsoftware</span></a></span><div class="ni n1 expanded"><span class="nh h100 selected"><button class="ar icon-button expanded"></button><a href="#"><span class="micon pa"></span><span>args</span></a></span><div class="ni n2 "><span class="nh "><a href="args/AmbiguousNameException.html"><span class="micon cl"></span><span>AmbiguousNameException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/AnonymousNotFoundException$.html"><span class="micon ob"></span><span>AnonymousNotFoundException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Arg.html"><span class="micon cl"></span><span>Arg</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Arg$.html"><span class="micon ob"></span><span>Arg</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Args.html"><span class="micon cl"></span><span>Args</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Args$.html"><span class="micon ob"></span><span>Args</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/ArgsException.html"><span class="micon cl"></span><span>ArgsException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Derivable.html"><span class="micon tr"></span><span>Derivable</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="args/Derivable$.html"><span class="micon ob"></span><span>Derivable</span></a></span><div class="ni n3 "><span class="nh "><a href="args/Derivable$$DerivableStringBoolean$.html"><span class="micon ob"></span><span>DerivableStringBoolean</span></a></span></div><div class="ni n3 "><span class="nh "><a href="args/Derivable$$DerivableStringDouble$.html"><span class="micon ob"></span><span>DerivableStringDouble</span></a></span></div><div class="ni n3 "><span class="nh "><a href="args/Derivable$$DerivableStringFile$.html"><span class="micon ob"></span><span>DerivableStringFile</span></a></span></div><div class="ni n3 "><span class="nh "><a href="args/Derivable$$DerivableStringInt$.html"><span class="micon ob"></span><span>DerivableStringInt</span></a></span></div><div class="ni n3 "><span class="nh "><a href="args/Derivable$$DerivableStringURL$.html"><span class="micon ob"></span><span>DerivableStringURL</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="args/Element.html"><span class="micon tr"></span><span>Element</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/EmptyArgsException$.html"><span class="micon ob"></span><span>EmptyArgsException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Flag.html"><span class="micon cl"></span><span>Flag</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/FlagWithValue.html"><span class="micon cl"></span><span>FlagWithValue</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/InvalidOptionException.html"><span class="micon cl"></span><span>InvalidOptionException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/MapException.html"><span class="micon cl"></span><span>MapException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/NoDerivationAvailable.html"><span class="micon cl"></span><span>NoDerivationAvailable</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/NoMatchException.html"><span class="micon cl"></span><span>NoMatchException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/NoOptionInSynopsisException.html"><span class="micon cl"></span><span>NoOptionInSynopsisException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/NoValueException.html"><span class="micon cl"></span><span>NoValueException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/NotFoundException.html"><span class="micon cl"></span><span>NotFoundException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Operand.html"><span class="micon cl"></span><span>Operand</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/OptionalElement.html"><span class="micon cl"></span><span>OptionalElement</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/ParseException.html"><span class="micon cl"></span><span>ParseException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Parser.html"><span class="micon cl"></span><span>Parser</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/PosixArg.html"><span class="micon tr"></span><span>PosixArg</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/PosixOperand.html"><span class="micon cl"></span><span>PosixOperand</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/PosixOptionString.html"><span class="micon cl"></span><span>PosixOptionString</span></a></span></div><div class="ni n2"><span class="nh "><button class="ar icon-button "></button><a href="args/SimpleArgParser.html"><span class="micon cl"></span><span>SimpleArgParser</span></a></span><div class="ni n3 "><span class="nh "><a href="args/SimpleArgParser$Argument.html"><span class="micon cl"></span><span>Argument</span></a></span></div><div class="ni n3 "><span class="nh "><a href="args/SimpleArgParser$Flag.html"><span class="micon cl"></span><span>Flag</span></a></span></div><div class="ni n3 "><span class="nh "><a href="args/SimpleArgParser$Token.html"><span class="micon tr"></span><span>Token</span></a></span></div></div><div class="ni n2 "><span class="nh "><a href="args/Synopsis.html"><span class="micon cl"></span><span>Synopsis</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/SynopsisParser.html"><span class="micon cl"></span><span>SynopsisParser</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/ValidationException.html"><span class="micon cl"></span><span>ValidationException</span></a></span></div><div class="ni n2 "><span class="nh "><a href="args/Value.html"><span class="micon cl"></span><span>Value</span></a></span></div></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="examples.html"><span class="micon pa"></span><span>examples</span></a></span><div class="ni n2 "><span class="nh "><a href="examples/ExampleInt$.html"><span class="micon ob"></span><span>ExampleInt</span></a></span></div></div><div class="ni n1"><span class="nh "><button class="ar icon-button "></button><a href="util.html"><span class="micon pa"></span><span>util</span></a></span><div class="ni n2 "><span class="nh "><a href="util/Kleenean$.html"><span class="micon ob"></span><span>Kleenean</span></a></span></div><div class="ni n2 "><span class="nh "><a href="util/Kleenean.html"><span class="micon cl"></span><span>Kleenean</span></a></span></div><div class="ni n2 "><span class="nh "><a href="util/Maybe.html"><span class="micon tr"></span><span>Maybe</span></a></span></div><div class="ni n2 "><span class="nh "><a href="util/Maybe$.html"><span class="micon ob"></span><span>Maybe</span></a></span></div><div class="ni n2 "><span class="nh "><a href="util/MonadOps$.html"><span class="micon ob"></span><span>MonadOps</span></a></span></div><div class="ni n2 "><span class="nh "><a href="util/$up$up$$.html"><span class="micon ob"></span><span>^^</span></a></span></div></div></div></nav></div><div id="footer" class="body-small"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div><div id="scaladoc-searchBar"></div><div id="main"><div class="breadcrumbs container"><a href="../../index.html">Args</a>/<a href="../phasmidsoftware.html">com.phasmidsoftware</a>/<a href="args.html">com.phasmidsoftware.args</a></div><div id="content" class="body-medium"><div><div class="cover-header">
+ <span class="icon"><span class="micon pa"></span></span>
+ <h1 class="h600 single">com.phasmidsoftware.args</h1>
+</div>
+<div class="fqname body-large">
+ <span></span>
+</div>
+<div class="main-signature mono-small-block">
+ <div class="signature">
+  <span class="modifiers"></span><span class="kind"><span t="k">package </span></span><a href="args.html" t="n" class="documentableName ">com.phasmidsoftware.args</a>
+ </div>
+</div>
+<section id="members-list">
+ <h2 class="h500">Members list</h2>
+ <div class="documentableFilter">
+  <div class="filtersContainer"></div>
+  <input class="filterableInput" placeholder="Filter by any phrase" data-test-id="filterBarInput" type="search"><button class="clearButton label-only-button" data-test-id="filterBarClearButton">Clear all</button>
+ </div>
+ <div class="membersList expand">
+  <div class="tabs">
+   <div class="contents">
+    <section id="Type-members">
+     <div data-togglable="Type members" class="tab expand">
+      <div class="member-group-header">
+       <h3 data-togglable="Type members" class="h400">Type members</h3>
+      </div>
+      <section id="Classlikes">
+       <div class="documentableList expand">
+        <div class="documentableList-expander">
+         <button class="icon-button show-content expand"></button>
+         <h4 class="groupHeader h200">Classlikes</h4>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/AmbiguousNameException.html" t="n" class="documentableName ">AmbiguousNameException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">name</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">object </span></span><a href="args/AnonymousNotFoundException$.html" t="n" class="documentableName ">AnonymousNotFoundException</a><span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Singleton</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Mirror</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+              <dt class="body-small">Self type</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <span></span>
+                <div>
+                 <a href="args/AnonymousNotFoundException$.html" t="n">AnonymousNotFoundException</a>.<span t="k">type</span>
+                </div>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/Arg.html" t="n" class="documentableName ">Arg</a>[<span t="k"></span><span data-unresolved-link="" t="t">X</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">name</span>: <span data-unresolved-link="" t="t">Option</span>[<span data-unresolved-link="" t="t">String</span>], <span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">Option</span>[<span data-unresolved-link="" t="t">X</span>])<span t="k"> extends </span><span data-unresolved-link="" t="t">Ordered</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Case class to represent an "option" in a command line. Such an option has an (optional) name which is a String; and an (optional) value, which is of type X.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Case class to represent an "option" in a command line. Such an option has an (optional) name which is a String; and an (optional) value, which is of type X.</p>
+             </div>
+             <h2 class="h200">Type parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">X</dt>
+              <dd class="body-medium">
+               <p>the underlying type of the value.</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">name</dt>
+              <dd class="body-medium">
+               <p>the optional name.</p>
+              </dd>
+              <dt class="body-small">value</dt>
+              <dd class="body-medium">
+               <p>the optional value.</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Companion</dt>
+              <dd class="body-medium">
+               <a href="args/Arg$.html">object</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Ordered</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Comparable</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">object </span></span><a href="args/Arg$.html" t="n" class="documentableName ">Arg</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Companion</dt>
+              <dd class="body-medium">
+               <a href="args/Arg.html">class</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Mirror</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Self type</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <span></span>
+                <div>
+                 <a href="args/Arg$.html" t="n">Arg</a>.<span t="k">type</span>
+                </div>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/Args.html" t="n" class="documentableName ">Args</a>[<span t="k"></span><span data-unresolved-link="" t="t">X</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">xas</span>: <span data-unresolved-link="" t="t">Seq</span>[<a href="args/Arg.html" t="t">Arg</a>[<span data-unresolved-link="" t="t">X</span>]])<span t="k"> extends </span><span data-unresolved-link="" t="t">Iterable</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Companion</dt>
+              <dd class="body-medium">
+               <a href="args/Args$.html">object</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Iterable</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">IterableFactoryDefaults</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>], <span data-unresolved-link="" t="t">Iterable</span>]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">IterableOps</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>], <span data-unresolved-link="" t="t">Iterable</span>, <span data-unresolved-link="" t="t">Iterable</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">IterableOnceOps</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>], <span data-unresolved-link="" t="t">Iterable</span>, <span data-unresolved-link="" t="t">Iterable</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">IterableOnce</span>[<a href="args/Arg.html" t="t">Arg</a>[<span t="t">X</span>]]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">object </span></span><a href="args/Args$.html" t="n" class="documentableName ">Args</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Companion</dt>
+              <dd class="body-medium">
+               <a href="args/Args.html">class</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Mirror</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Self type</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <span></span>
+                <div>
+                 <a href="args/Args$.html" t="n">Args</a>.<span t="k">type</span>
+                </div>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="abstract">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">abstract </span></span><span class="kind"><span t="k">class </span></span><a href="args/ArgsException.html" t="n" class="documentableName ">ArgsException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">s</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><span data-unresolved-link="" t="t">Exception</span></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+              <dt class="body-small">Known subtypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block subtypes">
+                <div>
+                 class <a href="args/AmbiguousNameException.html" t="n">AmbiguousNameException</a>
+                </div>
+                <div>
+                 object <a href="args/AnonymousNotFoundException$.html" t="n">AnonymousNotFoundException</a>
+                </div>
+                <div>
+                 object <a href="args/EmptyArgsException$.html" t="n">EmptyArgsException</a>
+                </div>
+                <div>
+                 class <a href="args/InvalidOptionException.html" t="n">InvalidOptionException</a>[<span t="t">X</span>]
+                </div>
+                <div>
+                 class <a href="args/MapException.html" t="n">MapException</a>
+                </div>
+                <div>
+                 class <a href="args/NoMatchException.html" t="n">NoMatchException</a>
+                </div>
+                <div>
+                 class <a href="args/NoOptionInSynopsisException.html" t="n">NoOptionInSynopsisException</a>
+                </div>
+                <div>
+                 class <a href="args/NoValueException.html" t="n">NoValueException</a>
+                </div>
+                <div>
+                 class <a href="args/NotFoundException.html" t="n">NotFoundException</a>
+                </div>
+                <div>
+                 class <a href="args/ParseException.html" t="n">ParseException</a>
+                </div>
+                <div>
+                 class <a href="args/ValidationException.html" t="n">ValidationException</a>[<span t="t">X</span>]
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="args/Derivable.html" t="n" class="documentableName ">Derivable</a>[<span t="k"></span><span data-unresolved-link="" t="t">T</span>]
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Type-class trait to allow conversion from type X to type T</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Type-class trait to allow conversion from type X to type T</p>
+             </div>
+             <h2 class="h200">Type parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">T</dt>
+              <dd class="body-medium">
+               <p>the result type</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Companion</dt>
+              <dd class="body-medium">
+               <a href="args/Derivable$.html">object</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Known subtypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block subtypes">
+                <div>
+                 object <a href="args/Derivable$$DerivableStringBoolean$.html" t="n">DerivableStringBoolean</a>
+                </div>
+                <div>
+                 object <a href="args/Derivable$$DerivableStringDouble$.html" t="n">DerivableStringDouble</a>
+                </div>
+                <div>
+                 object <a href="args/Derivable$$DerivableStringFile$.html" t="n">DerivableStringFile</a>
+                </div>
+                <div>
+                 object <a href="args/Derivable$$DerivableStringInt$.html" t="n">DerivableStringInt</a>
+                </div>
+                <div>
+                 object <a href="args/Derivable$$DerivableStringURL$.html" t="n">DerivableStringURL</a>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">object </span></span><a href="args/Derivable$.html" t="n" class="documentableName ">Derivable</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Provides default given instances of the <code>Derivable</code> type class for specific types. Each instance defines a mechanism to derive a value of type T from an input value of type X.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Provides default given instances of the <code>Derivable</code> type class for specific types. Each instance defines a mechanism to derive a value of type T from an input value of type X.</p>
+              <p>Contains given instances for the following derivations:</p>
+              <ul>
+               <li>Boolean from String</li>
+               <li>Int from String</li>
+               <li>Double from String</li>
+               <li>java.io.File from String</li>
+               <li>java.net.URL from String</li>
+              </ul>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Companion</dt>
+              <dd class="body-medium">
+               <a href="args/Derivable.html">trait</a>
+              </dd>
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Self type</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <span></span>
+                <div>
+                 <a href="args/Derivable$.html" t="n">Derivable</a>.<span t="k">type</span>
+                </div>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="args/Element.html" t="n" class="documentableName ">Element</a><span t="k"> extends </span><span data-unresolved-link="" t="t">Ordered</span>[<a href="args/Element.html" t="t">Element</a>]</span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>This represents an element in the synopsis for a command line</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>This represents an element in the synopsis for a command line</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Ordered</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Comparable</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Known subtypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block subtypes">
+                <div>
+                 class <a href="args/Flag.html" t="n">Flag</a>
+                </div>
+                <div>
+                 class <a href="args/FlagWithValue.html" t="n">FlagWithValue</a>
+                </div>
+                <div>
+                 class <a href="args/Operand.html" t="n">Operand</a>
+                </div>
+                <div>
+                 class <a href="args/OptionalElement.html" t="n">OptionalElement</a>
+                </div>
+                <div>
+                 class <a href="args/Value.html" t="n">Value</a>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">object </span></span><a href="args/EmptyArgsException$.html" t="n" class="documentableName ">EmptyArgsException</a><span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Singleton</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Mirror</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+              <dt class="body-small">Self type</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <span></span>
+                <div>
+                 <a href="args/EmptyArgsException$.html" t="n">EmptyArgsException</a>.<span t="k">type</span>
+                </div>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/Flag.html" t="n" class="documentableName ">Flag</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/Element.html" t="t">Element</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>This represents an "Option" in the parlance of POSIX command line interpretation (but formerly these options were known as flags)</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>This represents an "Option" in the parlance of POSIX command line interpretation (but formerly these options were known as flags)</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">value</dt>
+              <dd class="body-medium">
+               <p>the (single-character) String representing the option (flag)</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <a href="args/Element.html" t="n">Element</a>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Ordered</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Comparable</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/FlagWithValue.html" t="n" class="documentableName ">FlagWithValue</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">String</span>, <span t="k"></span><span data-unresolved-link="" t="n">element</span>: <a href="args/Element.html" t="t">Element</a>)<span t="k"> extends </span><a href="args/Element.html" t="t">Element</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>This represents an "Option" and its "Value"</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>This represents an "Option" and its "Value"</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">element</dt>
+              <dd class="body-medium">
+               <p>the Element which corresponds to the "value" of this synopsis flag (and which may of course be OptionalElement).</p>
+              </dd>
+              <dt class="body-small">value</dt>
+              <dd class="body-medium">
+               <p>the flag or "option" String</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <a href="args/Element.html" t="n">Element</a>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Ordered</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Comparable</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/InvalidOptionException.html" t="n" class="documentableName ">InvalidOptionException</a>[<span t="k"></span><span data-unresolved-link="" t="t">X</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">arg</span>: <a href="args/Arg.html" t="t">Arg</a>[<span data-unresolved-link="" t="t">X</span>])<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/MapException.html" t="n" class="documentableName ">MapException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">str</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/NoDerivationAvailable.html" t="n" class="documentableName ">NoDerivationAvailable</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">xc</span>: <span data-unresolved-link="" t="t">Class</span>[<span t="k">_</span>], <span t="k"></span><span data-unresolved-link="" t="n">yc</span>: <span data-unresolved-link="" t="t">Class</span>[<span t="k">_</span>])<span t="k"> extends </span><span data-unresolved-link="" t="t">RuntimeException</span></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">RuntimeException</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/NoMatchException.html" t="n" class="documentableName ">NoMatchException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">str</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/NoOptionInSynopsisException.html" t="n" class="documentableName ">NoOptionInSynopsisException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">str</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/NoValueException.html" t="n" class="documentableName ">NoValueException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">name</span>: <span data-unresolved-link="" t="t">Option</span>[<span data-unresolved-link="" t="t">String</span>])<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/NotFoundException.html" t="n" class="documentableName ">NotFoundException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">command</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/Operand.html" t="n" class="documentableName ">Operand</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/Element.html" t="t">Element</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>This represents an operand in the parlance of POSIX.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>This represents an operand in the parlance of POSIX.</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">value</dt>
+              <dd class="body-medium">
+               <p>the String</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <a href="args/Element.html" t="n">Element</a>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Ordered</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Comparable</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/OptionalElement.html" t="n" class="documentableName ">OptionalElement</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">element</span>: <a href="args/Element.html" t="t">Element</a>)<span t="k"> extends </span><a href="args/Element.html" t="t">Element</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>This represents an optional synopsis element, either an optional flag, or an optional value.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>This represents an optional synopsis element, either an optional flag, or an optional value.</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">element</dt>
+              <dd class="body-medium">
+               <p>a synopsis element that is optional</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <a href="args/Element.html" t="n">Element</a>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Ordered</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Comparable</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/ParseException.html" t="n" class="documentableName ">ParseException</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">cause</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">class </span></span><a href="args/Parser.html" t="n" class="documentableName ">Parser</a><span t="k"> extends </span><span data-unresolved-link="" t="t">RegexParsers</span></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Parser of POSIX-style command lines.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Parser of POSIX-style command lines.</p>
+              <p>TODO there is a problem with testing equality of Elements (it's too liberal)</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">RegexParsers</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Parsers</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"></span><span class="kind"><span t="k">trait </span></span><a href="args/PosixArg.html" t="n" class="documentableName ">PosixArg</a>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>a Posix Arg</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>a Posix Arg</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+              <dt class="body-small">Known subtypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block subtypes">
+                <div>
+                 class <a href="args/PosixOperand.html" t="n">PosixOperand</a>
+                </div>
+                <div>
+                 class <a href="args/PosixOptionString.html" t="n">PosixOptionString</a>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/PosixOperand.html" t="n" class="documentableName ">PosixOperand</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/PosixArg.html" t="t">PosixArg</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>The value of an operand, i.e. a String which follows all of the options and their values.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>The value of an operand, i.e. a String which follows all of the options and their values.</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">value</dt>
+              <dd class="body-medium">
+               <p>a String</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <a href="args/PosixArg.html" t="n">PosixArg</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/PosixOptionString.html" t="n" class="documentableName ">PosixOptionString</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/PosixArg.html" t="t">PosixArg</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>One or more options. Each option is a single-letter, although the terminating characters can be a value.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>One or more options. Each option is a single-letter, although the terminating characters can be a value.</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">value</dt>
+              <dd class="body-medium">
+               <p>the string of options, without the "-" prefix.</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <a href="args/PosixArg.html" t="n">PosixArg</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">class </span></span><a href="args/SimpleArgParser.html" t="n" class="documentableName ">SimpleArgParser</a><span t="k"> extends </span><span data-unresolved-link="" t="t">RegexParsers</span></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Parser of non-POSIX command lines</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Parser of non-POSIX command lines</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">RegexParsers</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Parsers</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/Synopsis.html" t="n" class="documentableName ">Synopsis</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">es</span>: <span data-unresolved-link="" t="t">Seq</span>[<a href="args/Element.html" t="t">Element</a>])
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>Represents a synopsis for a command line, containing a sequence of elements.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>Represents a synopsis for a command line, containing a sequence of elements.</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">es</dt>
+              <dd class="body-medium">
+               <p>the sequence of elements in the synopsis</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"></span><span class="kind"><span t="k">class </span></span><a href="args/SynopsisParser.html" t="n" class="documentableName ">SynopsisParser</a><span t="k"> extends </span><span data-unresolved-link="" t="t">RegexParsers</span></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>SynopsisParser is responsible for parsing a command-line synopsis and extracting its structural elements. It extends the <code>RegexParsers</code> trait to leverage regular-expression-based parsing mechanisms.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>SynopsisParser is responsible for parsing a command-line synopsis and extracting its structural elements. It extends the <code>RegexParsers</code> trait to leverage regular-expression-based parsing mechanisms.</p>
+             </div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">RegexParsers</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Parsers</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span></span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/ValidationException.html" t="n" class="documentableName ">ValidationException</a>[<span t="k"></span><span data-unresolved-link="" t="t">X</span>](<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">a</span>: <a href="args/Args.html" t="t">Args</a>[<span data-unresolved-link="" t="t">X</span>], <span t="k"></span><span data-unresolved-link="" t="n">s</span>: <a href="args/Synopsis.html" t="t">Synopsis</a>)<span t="k"> extends </span><a href="args/ArgsException.html" t="t">ArgsException</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="cover">
+             <div class="doc"></div>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 class <a href="args/ArgsException.html" t="n">ArgsException</a>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Exception</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Throwable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="documentableElement" data-f-keywords="case">
+         <div class="documentableElement-expander">
+          <button class="icon-button ar show-content"></button>
+          <div class="header monospace mono-medium">
+           <div class="signature">
+            <span class="signature-short"><span class="modifiers"><span t="k">case </span></span><span class="kind"><span t="k">class </span></span><a href="args/Value.html" t="n" class="documentableName ">Value</a>(<span t="k"></span><span t="k"></span><span data-unresolved-link="" t="n">value</span>: <span data-unresolved-link="" t="t">String</span>)<span t="k"> extends </span><a href="args/Element.html" t="t">Element</a></span><span class="signature-long"></span>
+           </div>
+          </div>
+         </div>
+         <div class="docs">
+          <span class="modifiers"></span>
+          <div>
+           <div class="originInfo"></div>
+           <div class="memberDocumentation">
+            <div class="documentableBrief doc">
+             <p>This represents an Option Value in the parlance of POSIX.</p>
+            </div>
+            <div class="cover">
+             <div class="doc">
+              <p>This represents an Option Value in the parlance of POSIX.</p>
+             </div>
+             <h2 class="h200">Value parameters</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">value</dt>
+              <dd class="body-medium">
+               <p>the String</p>
+              </dd>
+             </dl>
+             <h2 class="h200">Attributes</h2>
+             <dl class="attributes attributes-small">
+              <dt class="body-small">Supertypes</dt>
+              <dd class="body-medium">
+               <div class="mono-small-block supertypes">
+                <div>
+                 trait <span data-unresolved-link="" t="n">Serializable</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Product</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Equals</span>
+                </div>
+                <div>
+                 trait <a href="args/Element.html" t="n">Element</a>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Ordered</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Comparable</span>[<a href="args/Element.html" t="t">Element</a>]
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Object</span>
+                </div>
+                <div>
+                 trait <span data-unresolved-link="" t="n">Matchable</span>
+                </div>
+                <div>
+                 class <span data-unresolved-link="" t="n">Any</span>
+                </div>
+                <span class="show-all-code show-content text-button h100">Show all</span>
+               </div>
+              </dd>
+             </dl>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </div>
+    </section>
+   </div>
+  </div>
+ </div>
+</section></div><div id="toc" class="body-small"><div id="toc-container"><span class="toc-title h200">In this article</span><nav class="toc-nav"><ul class="toc-list"><li><a href="#members-list">Members list</a><ul><li><a href="#Type-members">Type members</a><ul><li><a href="#Classlikes">Classlikes</a></li></ul></li></ul></li></ul></nav></div></div></div><div id="footer" class="body-small mobile-footer"><div class="left-container">Generated with</div><div class="right-container"><div class="text"></div></div><div class="text-mobile"></div></div></div></div></body></html>
