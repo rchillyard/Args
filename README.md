@@ -1,6 +1,6 @@
 # Args
 
-![Sonatype Central](https://maven-badges.sml.io/sonatype-central/com.phasmidsoftware/args_3/badge.svg?color=blue)
+[![Sonatype Central](https://maven-badges.sml.io/sonatype-central/com.phasmidsoftware/args_3/badge.svg?color=blue)](https://central.sonatype.com/artifact/com.phasmidsoftware/args_3)
 [![args Scala version support](https://index.scala-lang.org/rchillyard/args/args/latest-by-scala-version.svg)](https://index.scala-lang.org/rchillyard/args/args)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/78b1a73d5903494c87d950f9e2f7addf)](https://www.codacy.com/gh/rchillyard/Args/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rchillyard/Args&amp;utm_campaign=Badge_Grade)
 [![CI](https://github.com/rchillyard/Args/actions/workflows/ci.yml/badge.svg)](https://github.com/rchillyard/Args/actions/workflows/ci.yml)
