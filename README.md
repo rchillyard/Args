@@ -1,14 +1,15 @@
 # Args
 
 [![Sonatype Central](https://maven-badges.sml.io/sonatype-central/com.phasmidsoftware/args_3/badge.svg?color=blue)](https://central.sonatype.com/artifact/com.phasmidsoftware/args_3)
+[![API Docs](https://img.shields.io/badge/api-docs-blue)](https://rchillyard.github.io/Args/latest/api/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/a4c5e4556b0b48bba579fdbc0e680ecc)](https://app.codacy.com/gh/rchillyard/Args/dashboard)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/rchillyard/Args/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/rchillyard/Args/tree/master)
+[![GitHub Top Languages](https://img.shields.io/github/languages/top/rchillyard/Args)](https://github.com/rchillyard/Args)
+[![GitHub](https://img.shields.io/github/license/rchillyard/Args)](https://github.com/rchillyard/Args/blob/master/LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/rchillyard/Args)](https://github.com/rchillyard/Args/commits/master)
+[![GitHub issues](https://img.shields.io/github/issues-raw/rchillyard/Args)](https://github.com/rchillyard/Args/issues)
+[![GitHub issues by-label](https://img.shields.io/github/issues/rchillyard/Args/bug)](https://github.com/rchillyard/Args/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 [![args Scala version support](https://index.scala-lang.org/rchillyard/args/args/latest-by-scala-version.svg)](https://index.scala-lang.org/rchillyard/args/args)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/78b1a73d5903494c87d950f9e2f7addf)](https://www.codacy.com/gh/rchillyard/Args/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rchillyard/Args&amp;utm_campaign=Badge_Grade)
-[![CI](https://github.com/rchillyard/Args/actions/workflows/ci.yml/badge.svg)](https://github.com/rchillyard/Args/actions/workflows/ci.yml)
-![GitHub Top Languages](https://img.shields.io/github/languages/top/rchillyard/Args)
-![GitHub](https://img.shields.io/github/license/rchillyard/Args)
-![GitHub last commit](https://img.shields.io/github/last-commit/rchillyard/Args)
-![GitHub issues](https://img.shields.io/github/issues-raw/rchillyard/Args)
-![GitHub issues by-label](https://img.shields.io/github/issues/rchillyard/Args/bug)
 
 *Args* is a Scala 3 library for parsing and validating command-line arguments.
 
@@ -52,7 +53,7 @@ If your grammar is simple and well-known (it's already in your `--help` text), *
 
 ## API Documentation
 
-Full Scaladoc is available via [javadoc.io](https://javadoc.io/doc/com.phasmidsoftware/args_3).
+Full Scaladoc is at <https://rchillyard.github.io/Args/latest/api/>.
 
 ## Introduction
 *Args* provides a mechanism for parsing, validating, and processing a set of command line arguments.

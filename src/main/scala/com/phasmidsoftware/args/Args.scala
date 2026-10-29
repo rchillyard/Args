@@ -406,19 +406,20 @@ object Args {
         val cEm: Map[Char, Element] = prune(for (c <- w) yield c -> s.find(Some(c.toString)))
 
         @scala.annotation.tailrec
+        def unwrap(e: Element): Element = e match
+          case OptionalElement(x) => unwrap(x)
+          case _ => e
+
+        @scala.annotation.tailrec
         def inner2(r: Seq[Arg[String]], cs: List[Char]): Seq[Arg[String]] = cs match {
           case Nil =>
             r
           case c :: tail =>
             cEm.get(c) match {
               case Some(e) =>
-                @scala.annotation.tailrec
-                def processElement(e: Element): Seq[Arg[String]] = e match
-                  case OptionalElement(x) => processElement(x)
+                unwrap(e) match
                   case FlagWithValue(_, OptionalElement(_)) => r :+ Arg(c.toString, tail.mkString(""))
                   case _ => inner2(r :+ Arg(c.toString), tail)
-
-                processElement(e)
               case None =>
                 throw NoOptionInSynopsisException(c.toString)
             }
