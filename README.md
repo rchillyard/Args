@@ -260,6 +260,10 @@ The currently supported \[T] types are _Boolean_, _Int_, _Double_, _File_, _URL_
 
 ## Versions
 
+### Version 2.1.0:
+* Built with Scala 3.9.0 (the current LTS), so it needs Scala 3.9 or later (for Scala 3.3, use 2.0.0);
+* CI is on CircleCI again; sbt 1.12.13; Scaladoc on GitHub Pages.
+
 ### Version 2.0.0:
 * Migrated to Scala 3 (dropped support for 2.10/2.11/2.12/2.13); CI moved from CircleCI to GitHub Actions;
 * `Arg.compare` is now a safe total order (options before operands) — it no longer throws;
