@@ -39,7 +39,8 @@ Args.parse(args, Some("-f filename operand")) match {
 }
 ```
 
-Add `libraryDependencies += "com.phasmidsoftware" %% "args" % "2.0.0"` to your `build.sbt` (Scala 3 only — see [Versions](#versions)).
+Add `libraryDependencies += "com.phasmidsoftware" %% "args" % "2.1.0"` to your `build.sbt`.
+Args 2.1.0 and later need Scala 3.9 or later; for Scala 3.3 to 3.8, use 2.0.0 (see [Versions](#versions)).
 
 ## Why Args
 
