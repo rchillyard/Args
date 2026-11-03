@@ -382,7 +382,7 @@ object Args {
   def make(args: IndexedSeq[String]): Args[String] =
     parse(args.toArray[String]).get
 
-  private def doParse(ps: => Seq[PosixArg], wo: Option[String] = None, validate: Boolean = true): Try[Args[String]] = {
+  private def doParse(ps: => Seq[PosixArg], wo: Option[String], validate: Boolean): Try[Args[String]] = {
     val sy = (new SynopsisParser).parseOptionalSynopsis(wo)
 
     // Method to unwrap an Element down to its "core" and determine whether it declares a
@@ -459,6 +459,6 @@ object Args {
         throw ParseException(s"loop: failed to match $w")
 
     val ta = Try(Args(loop(Seq(), ps)))
-    if (validate) ta flatMap (_ validate sy) else ta
+    if (validate) ta.flatMap(_.validate(sy)) else ta
   }
 }

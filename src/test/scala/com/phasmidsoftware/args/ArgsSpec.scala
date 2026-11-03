@@ -8,7 +8,7 @@ import org.scalatest.flatspec
 import org.scalatest.matchers.should
 
 import java.io.File
-import java.net.URL
+import java.net.{URI, URL}
 import scala.collection.mutable
 import scala.util.{Failure, Success}
 
@@ -72,7 +72,7 @@ class ArgsSpec extends flatspec.AnyFlatSpec with should.Matchers {
 
   it should "implement as[URL]" in {
     val target = Arg(sX, "https://www.google.com")
-    target.as[URL] shouldBe Arg(Some("x"), Some(new URL("https://www.google.com")))
+    target.as[URL] shouldBe Arg(Some("x"), Some(URI("https://www.google.com").toURL))
   }
 
   it should "implement as[URL] malformed" in {

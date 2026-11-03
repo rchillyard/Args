@@ -71,4 +71,4 @@ object Derivable:
     }
   }
 
-case class NoDerivationAvailable(xc: Class[_], yc: Class[_]) extends RuntimeException(s"no implicitly defined conversion from $xc to $yc")
+case class NoDerivationAvailable(xc: Class[?], yc: Class[?]) extends RuntimeException(s"no implicitly defined conversion from $xc to $yc")
