@@ -6,7 +6,18 @@ version := "2.1.0"
 
 scalaVersion := "3.9.0" // the current LTS
 
-scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked", "-Wunused:all")
+// The compiler options that all the Phasmid libraries share.
+scalacOptions ++= Seq(
+  "-encoding", "UTF-8",
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-Wunused:all",
+  "-Wvalue-discard",
+  "-Wnonunit-statement"
+)
+// Tests may use a value as a statement (for example, in a matcher), so they skip -Wnonunit-statement.
+Test / scalacOptions ~= (_.filterNot(_ == "-Wnonunit-statement"))
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
