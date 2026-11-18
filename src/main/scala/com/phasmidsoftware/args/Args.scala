@@ -46,8 +46,9 @@ case class Args[X](xas: Seq[Arg[X]]) extends Iterable[Arg[X]] {
   /**
     * Method to validate this Args according to the (optional) synopsis given as sy.
     *
-    * CONSIDER using lift
-    * CONSIDER using map/recover on sy
+    * CONSIDER using lift, or map/recover on sy — see issue #18. Note that `recover` would
+    * also catch a NoSuchElementException thrown from inside doValidation, which this match
+    * does not, so the explicit form may be the correct one.
     *
     * @param sy the optional Synopsis, as produced by SynopsisParser.parseOptionalSynopsis.
     * @return this, wrapped in Success, provided that no synopsis was given, or the synopsis was given and
