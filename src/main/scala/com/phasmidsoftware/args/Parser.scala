@@ -13,7 +13,7 @@ import scala.util.parsing.combinator.RegexParsers
 /**
   * Parser of POSIX-style command lines.
   *
-  * TODO there is a problem with testing equality of Elements (it's too liberal)
+  * TODO there is a problem with testing equality of Elements (it's too liberal) — issue #20
   *
   */
 class Parser extends RegexParsers {
@@ -375,7 +375,9 @@ class SynopsisParser extends RegexParsers {
   /**
     * A valueToken2 matches an uppercase letter followed by any number of non-space, non-bracket symbols
     *
-    * CONSIDER should not allow "-"
+    * CONSIDER should not allow "-" — see issue #19, and #17 for the same question from the
+    * operand side. A hyphen is meaningful positionally: leading introduces an option,
+    * interior is ordinary text.
     *
     * @return a Parser[String]
     */
@@ -443,7 +445,8 @@ class SimpleArgParser extends RegexParsers {
   /**
     * An argument can be made up of alphabetic and numeric characters, including "." but not "-"
     *
-    * TODO should make this more flexible.
+    * TODO should make this more flexible — issue #17. As it stands `[\w.]+` rejects every
+    * file path, and POSIX says operands may contain characters outside the portable set.
     *
     * @return a Parser[Argument]
     */
