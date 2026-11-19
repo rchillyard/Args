@@ -91,7 +91,7 @@ trait Maybe extends (() => Option[Boolean]) {
     * Method to convert this Maybe into an integer corresponding
     * to the return value of compareTo
     *
-    * TEST this method
+    * TEST this method — see issue #24
     *
     * @return either 1 (true), 0 (maybe), or -1 (false)
     */
@@ -104,7 +104,7 @@ trait Maybe extends (() => Option[Boolean]) {
   /**
     * Method to deny (invert, negate, ...) this Maybe
     *
-    * TEST this method
+    * TEST this method — see issue #24
     *
     * @return Some(!x) if exists, else return None
     */

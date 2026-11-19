@@ -152,7 +152,7 @@ case class Synopsis(es: Seq[Element]) {
   /**
     * Method to get an element by value (basically that's its name).
     *
-    * TEST this method
+    * TEST this method — see issue #24
     *
     * @param value the value to find
     * @return an Option[Element]
@@ -423,13 +423,10 @@ class SimpleArgParser extends RegexParsers {
   /**
     * Case class to represent a "flag", a.k.a. option.
     *
-    * TEST
-    *
     * @param s the single-character string which is the name of this flag
     */
   case class Flag(s: String) extends Token
 
-  // TEST
   case class Argument(s: String) extends Token
 
   def token: Parser[Token] = flag | argument
